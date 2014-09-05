@@ -37,11 +37,22 @@ let ``Can create Squared exponential from parameters and give them back afterwar
 
 [<Test>]
 let ``Value of squared exponential kernel is correct`` () = 
+    (* % Matlab code
+    format long
+    hyp = [log(3.5); log(sqrt(1.1))]; 
+    x = [0; 1; -2; 3; 4]; y = [0; 1.5; -3; 7; -1];
+    diag(covSEiso(hyp, x, y));
+    *)
     let xs = [ 0.0; 1.0; -2.0; 3.0; 4.0 ]
     let ys = [ 0.0; 1.5; -3.0; 7.0; -1.0 ] 
     let kernel = SquaredExponential.ofParameters [| 3.5; 1.1; 0.7 |]
     let values = List.map2 (fun x y -> kernel.Kernel (x,y)) xs ys
-    let gpmlValues = [] // TODO
+    let gpmlValues = [
+       1.100000000000000;
+       1.088832583716607;
+       1.056005985414026;
+       0.572495133122772;
+       0.396492567457603 ]
     values |> should (equalWithin 1e-9) gpmlValues
 
 [<Test>]
