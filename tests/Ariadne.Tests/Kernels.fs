@@ -1,6 +1,7 @@
-#if INTERACTIVE
+﻿#if INTERACTIVE
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #r "../../packages/FsUnit.1.3.0.1/Lib/Net40/FsUnit.NUnit.dll"
+#r "../../packages/FsCheck.1.0.0/lib/net45/FsCheck.dll"
 #r "../../packages/MathNet.Numerics.3.2.1/lib/net40/MathNet.Numerics.dll"
 #r "../../packages/MathNet.Numerics.FSharp.3.2.1/lib/net40/MathNet.Numerics.FSharp.dll"
 #load "../../packages/FSharp.Charting.0.90.7/FSharp.Charting.fsx"
@@ -12,6 +13,7 @@
 module Ariadne.Tests.Kernels
 #endif
 
+open Ariadne.Tests.Utils
 open NUnit.Framework
 open FsUnit
 
@@ -58,15 +60,26 @@ let ``Value of squared exponential kernel is correct`` () =
 [<Test>]
 let ``Prior log likelihood is correct`` () =
     // Compute prior log likelihood numerically
-
-    let kernel = SquaredExponential.ofParameters [| 3.5; 1.1; 0.7 |]
-    let lengthscalePrior = LogNormal.WithMeanVariance(1.1, 0.1)
-    let signalPrior = LogNormal.WithMeanVariance(1.0, 0.5)
-    let noisePrior = LogNormal.WithMeanVariance(0.1, 0.1)
+    let parameters = [| 3.5; 1.1; 0.7 |]
+    let kernel = SquaredExponential.ofParameters parameters
+    // Initialize LogNormal distributions with μ and σ
+    let lengthscalePrior = LogNormal(0.1, 0.1)
+    let signalPrior = LogNormal(1.0, 0.5)
+    let noisePrior = LogNormal(-0.5, 0.1)
     let prior = SquaredExponential.Prior(lengthscalePrior, signalPrior, noisePrior)
     let loglik = prior.DensityLn kernel
 
-    let theoreticalLoglik = 0.0     // TODO
+    // This is direct translation of probability density function computation 
+    let logNormalLikelihood mu sigma x =
+        let sigma2 = sigma*sigma 
+        1.0/(x * sqrt (2.0 * System.Math.PI * sigma2)) * exp((-1.0/(2.0*sigma2)) * (log x - mu)*(log x - mu))
+        |> log
+
+    let theoreticalLoglik = 
+        logNormalLikelihood lengthscalePrior.Mu lengthscalePrior.Sigma 3.5
+        + logNormalLikelihood signalPrior.Mu signalPrior.Sigma 1.1
+        + logNormalLikelihood noisePrior.Mu noisePrior.Sigma 0.7
+
     loglik |> should (equalWithin 1e-9) theoreticalLoglik
 
 [<Test>]
@@ -83,23 +96,8 @@ let ``Log likelihood is identical for parameters given individually and as a ker
     let loglikParams = prior.ParamsDensityLn parameters
     loglikKernel |> should (equalWithin 1e-9) loglikParams
 
-let createSampleData n seed =
-    let rnd = System.Random(seed)
-    let xs = 
-        [| for i in 0..n-1 -> rnd.NextDouble() * 10.0 |]
-    let ys = xs |> Array.map (fun x -> (sin x) + Normal.Sample(rnd, 0.0, 0.1))
-    {Locations = xs; Observations = ys}
-
-let numericalDerivative f x =
-    let epsilon = 1e-7
-    (f (x + epsilon) - f x)/epsilon
-
-/// Round number to a specified number of significant digits
-let roundToSigDigits nDigits x =
-    if x = 0.0 then 0.0
-    else
-        let scale = 10.0**((floor (log10 (abs x))) + 1.0 - float nDigits)
-        scale * round(x/scale)
+// ==========================
+// Gradient computation 
 
 [<Test>]
 let ``Log likelihood derivative wrt squared exponential kernel is correct`` () =
@@ -127,17 +125,15 @@ let ``Log likelihood derivative wrt squared exponential kernel is correct`` () =
     let numericalGradient idx = numericalDerivative (perturbLoglik idx) (parameters.[idx])
 
     // theoretical gradient
-    let computedGradient = SquaredExponential.fullGradient data parameters
+    let computedGradient = 
+        SquaredExponential.fullGradient data parameters
+        |> Array.map (roundToSigDigits 3)
 
     // individual numerical gradients
-    let lengthscaleGradient = numericalGradient 0
-    let varianceGradient = numericalGradient 1    
-    let noiseGradient = numericalGradient 2                
+    let lengthscaleGradient = numericalGradient 0 |> roundToSigDigits 3
+    let varianceGradient = numericalGradient 1 |> roundToSigDigits 3    
+    let noiseGradient = numericalGradient 2 |> roundToSigDigits 3               
     
-    let computedChecksum = 
-        computedGradient |> Array.sum |> roundToSigDigits 3
-    let expectedChecksum = 
-        lengthscaleGradient + varianceGradient + noiseGradient
-        |> roundToSigDigits 3
-
-    computedChecksum |> should equal expectedChecksum
+    computedGradient.[0] |> should equal lengthscaleGradient
+    computedGradient.[1] |> should equal varianceGradient
+    computedGradient.[2] |> should equal noiseGradient

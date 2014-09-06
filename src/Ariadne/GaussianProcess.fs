@@ -95,17 +95,17 @@ module GaussianProcess =
                     covarianceMatrix this.Covariance allLocations allLocations
                     |> addObservationNoise this.NoiseVariance
 
-                let invCovariance = observedCovariance.Inverse()
-
                 let newCovariance = covarianceMatrix this.Covariance newLocations newLocations
                 let crossCovariance = covarianceMatrix this.Covariance newLocations allLocations
 
-                let intermediateProduct = crossCovariance * invCovariance
-                let newMean = intermediateProduct * (allObservations |> DenseVector.ofArray)
-                let newCovariance = 
-                    newCovariance - intermediateProduct * crossCovariance.Transpose()
+                // Stable computation using Cholesky decomposition
+                let cholCovariance = observedCovariance.Cholesky()
+                let newMean = crossCovariance * cholCovariance.Solve(allObservations |> DenseVector.ofArray)
+                let newCovMatrix = 
+                    newCovariance - crossCovariance * cholCovariance.Solve(crossCovariance.Transpose())
                     |> addObservationNoise this.NoiseVariance
-                newMean, newCovariance
+
+                newMean, newCovMatrix
             else
                 // return prior Gaussian process in case no data are previously observed
                 let newCovariance = 
@@ -132,7 +132,6 @@ module GaussianProcess =
                 mvNormalLoglik meanVector covMatrix (allObservations |> DenseVector.ofArray)
 
         /// Predictive log likelihood of a Gaussian process
-        /// TODO: Check numerically
         member this.PredictiveLogLikelihood (data:Observation<'T> seq) (x:Observation<'T>) = 
             let mean, covariance = this.PosteriorGaussianProcess data x.Locations
             let xObservations = x.Observations |> DenseVector.ofArray
