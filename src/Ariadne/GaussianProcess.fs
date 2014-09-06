@@ -135,7 +135,9 @@ module GaussianProcess =
         member this.PredictiveLogLikelihood (data:Observation<'T> seq) (x:Observation<'T>) = 
             let mean, covariance = this.PosteriorGaussianProcess data x.Locations
             let xObservations = x.Observations |> DenseVector.ofArray
-            mvNormalLoglik mean covariance xObservations
+            // Predictive covariance matrix is diagonal
+            let diagCovariance = DenseMatrix.ofDiag (covariance.Diagonal())
+            mvNormalLoglik mean diagCovariance xObservations
 
         /// Predictive distribution of a Gaussian process given a set of observations
         ///

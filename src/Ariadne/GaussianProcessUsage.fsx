@@ -1,6 +1,6 @@
 
-#r "../../packages/MathNet.Numerics.3.2.1/lib/net40/MathNet.Numerics.dll"
-#r "../../packages/MathNet.Numerics.FSharp.3.2.1/lib/net40/MathNet.Numerics.FSharp.dll"
+#r "../../packages/MathNet.Numerics.3.2.3/lib/net40/MathNet.Numerics.dll"
+#r "../../packages/MathNet.Numerics.FSharp.3.2.3/lib/net40/MathNet.Numerics.FSharp.dll"
 #load "../../packages/FSharp.Charting.0.90.7/FSharp.Charting.fsx"
 
 #load "GaussianProcess.fs"
@@ -54,17 +54,20 @@ gp |> GaussianProcess.plotRange (-1.0, 12.0) [data]
 open Ariadne.Optimization
 
 // Metropolis Hastings sampling
-let newParams = SquaredExponential.optimizeMetropolisHastings data MetropolisHastings.defaultSettings sep (se.Parameters)
-let newGp = GaussianProcess.GaussianProcess<float>(newParams.Kernel, Some(newParams.NoiseVariance))
+let newParams = 
+    se
+    |> SquaredExponential.optimizeMetropolisHastings data MetropolisHastings.defaultSettings sep
+
+let newGp = newParams.GaussianProcess()
 newGp |> GaussianProcess.plot [data]
 gp |> GaussianProcess.plot [data]
 printfn "Original Gaussian process likelihood: %f" (gp.LogLikelihood [data])
 printfn "Optimized Gaussian process likelihood: %f" (newGp.LogLikelihood [data])
 
-// Gradient descent
-let settings = {GradientDescent.Iterations = 10000; GradientDescent.StepSize = 0.00001}
+// Gradient descent - experimental!
+let settings = {GradientDescent.Iterations = 100000; GradientDescent.StepSize = 0.0000001}
 let newParams = 
-    gradientDescent (se.Parameters) (SquaredExponential.fullGradient [data]) settings
+    gradientDescent (SquaredExponential.fullGradient [data]) settings (se.Parameters)
     |> SquaredExponential.ofParameters
 let newGp = GaussianProcess.GaussianProcess<float>(newParams.Kernel, Some(newParams.NoiseVariance))
 printfn "Original Gaussian process likelihood: %f" (gp.LogLikelihood [data])

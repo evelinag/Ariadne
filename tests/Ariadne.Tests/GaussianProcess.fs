@@ -2,8 +2,8 @@
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #r "../../packages/FsUnit.1.3.0.1/Lib/Net40/FsUnit.NUnit.dll"
 #r "../../packages/FsCheck.1.0.0/lib/net45/FsCheck.dll"
-#r "../../packages/MathNet.Numerics.3.2.1/lib/net40/MathNet.Numerics.dll"
-#r "../../packages/MathNet.Numerics.FSharp.3.2.1/lib/net40/MathNet.Numerics.FSharp.dll"
+#r "../../packages/MathNet.Numerics.3.2.3/lib/net40/MathNet.Numerics.dll"
+#r "../../packages/MathNet.Numerics.FSharp.3.2.3/lib/net40/MathNet.Numerics.FSharp.dll"
 #load "../../packages/FSharp.Charting.0.90.7/FSharp.Charting.fsx"
 
 #load "../../src/Ariadne/GaussianProcess.fs"
@@ -79,22 +79,14 @@ let ``Multivariate Normal log likelihood is computed correctly`` () =
             let computedValue = 
                 mvNormalLoglik (DenseVector.ofArray meanValues) covMatrix (DenseVector.ofArray data)
 
+            // Validate against Math.NET
             let expectedValue = 
-                (*
-                // uncomment with new version of Math.NET
                 let meanVector = DenseMatrix.ofColumnArrays [|meanValues|]
-                let U = covMatrix
-                let V = DenseMatrix.ofColumnArrays [| [|1.0|] |]
-                let dist = MatrixNormal(meanVector, U, V)
+                let v = covMatrix
+                let k = DenseMatrix.ofColumnArrays [| [|1.0|] |]
+                let dist = MatrixNormal(meanVector, v, k)
                 let dataMatrix = DenseMatrix.ofColumnArrays [|data|]
                 log (dist.Density dataMatrix)
-                *)
-                // Direct computation
-                let d = data.Length
-                let diff = (DenseVector.ofArray data) - (DenseVector.ofArray meanValues)
-                - (float d)/2.0 * log (2.0 * Math.PI)
-                - 0.5 * log (covMatrix.Determinant())
-                - 0.5 * (diff * (covMatrix.Inverse())) * diff
                 
             computedValue |> should (equalWithin 1e-9) expectedValue    
 
@@ -147,10 +139,90 @@ let ``Posterior Gaussian process mean and covariance is computed correctly`` () 
 
     Check.QuickThrowOnFailure checkPosteriorGP
 
+
 [<Test>]
 let ``Gaussian process log likelihood is corrext``() = 
-    // TODO: Check using GPML in Matlab
-    1.0 |> should equal 1.0        
+    let data = 
+        {Locations =
+            [|7.2624327; 8.173253596; 7.680226894; 5.581611914; 2.06033154|];
+         Observations =
+            [|0.8428437907; 0.9447371242; 0.8822730762; -0.6999179623; 0.8802120975|]}
+
+    let kernel = SquaredExponential.SquaredExponential(1.1, 1.5, 0.3)
+    let gp = kernel.GaussianProcess()
+    let computedLoglik = gp.LogLikelihood [data]
+
+    //    % GPML matlab code that replicates the log likelihood
+    //    hyp.cov = [log(1.1); log(sqrt(1.5))]; 
+    //    hyp.lik = log(sqrt(0.3));
+    //    x = [7.2624327; 8.173253596; 7.680226894; 5.581611914; 2.06033154];
+    //    y = [0.8428437907; 0.9447371242; 0.8822730762; -0.6999179623; 0.8802120975];
+    //    gp(hyp, @infExact, [], @covSEiso, @likGauss, x, y)
+
+    let expectedLoglik = - 5.858704950765723
+    computedLoglik |> should (equalWithin 1e-8) expectedLoglik
+        
+[<Test>]
+let ``Gaussian process predictive log likelihood is correct`` () =
+    let data = 
+        {Locations =
+            [|7.2624327; 8.173253596; 7.680226894; 5.581611914; 2.06033154|];
+         Observations =
+            [|0.8428437907; 0.9447371242; 0.8822730762; -0.6999179623; 0.8802120975|]}
+
+    let newData = 
+          {Locations = [|2.486685842; 1.107439772; 4.670106799|];
+           Observations = [|0.7270989633; 0.8053940883; -0.991954721|];}
+
+    let kernel = SquaredExponential.SquaredExponential(1.1, 1.5, 0.3)
+    let gp = kernel.GaussianProcess()
     
-       
+    let predictiveLoglik = gp.PredictiveLogLikelihood [data] newData
+
+    //    % Matlab code to replicate predictive log likelihood in GPML
+    //    hyp.cov = [log(1.1); log(sqrt(1.5))]; 
+    //    hyp.lik = log(sqrt(0.3));
+    //
+    //    x = [7.2624327; 8.173253596; 7.680226894; 5.581611914; 2.06033154];
+    //    y = [0.8428437907; 0.9447371242; 0.8822730762; -0.6999179623; 0.8802120975];
+    //    xs = [2.486685842; 1.107439772; 4.670106799];
+    //    ys = [0.7270989633; 0.8053940883; -0.991954721];
+    //    [ymu ys2 fmu fs2 lp] = gp(hyp, @infExact, [], @covSEiso, @likGauss, x, y, xs, ys);
+    //    sum(lp)
+
+    let expectedLoglik = -2.918933652
+    predictiveLoglik |> should (equalWithin 1e-8) expectedLoglik
+
+[<Test>]
+let ``Gaussian process predictive mean and covariance are correct`` () =
+    let data = 
+        {Locations =
+            [|7.2624327; 8.173253596; 7.680226894; 5.581611914; 2.06033154|];
+         Observations =
+            [|0.8428437907; 0.9447371242; 0.8822730762; -0.6999179623; 0.8802120975|]}
+
+    let newData = 
+          {Locations = [|2.486685842; 1.107439772; 4.670106799|];
+           Observations = [|0.7270989633; 0.8053940883; -0.991954721|];}
+
+    let kernel = SquaredExponential.SquaredExponential(1.1, 1.5, 0.3)
+    let gp = kernel.GaussianProcess()
+    let predictedMean, predictedVar = gp.Predict [data] newData.Locations
+    
+    // predictive mean and variance from GPML
+    let expectedMean = [|
+       0.669241476427904;
+       0.506467814949552;
+      -0.463358096340235 |]
+    let expectedVar = [|
+       0.724076212935593
+       1.209773521063414
+       1.143094565045542 |]
+
+    predictedMean |> Vector.toArray |> Array.sum 
+    |> should (equalWithin 1e-8) (expectedMean |> Array.sum)
+
+    predictedVar |> Vector.toArray |> Array.sum 
+    |> should (equalWithin 1e-8) (expectedVar |> Array.sum)
+
 

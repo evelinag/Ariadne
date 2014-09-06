@@ -4,10 +4,10 @@
 #I "../../bin"
 
 (**
-Introducing your project
+Fitting Gaussian process regression models
 ========================
 
-Say more
+How to fit a model to World Bank data
 
 *)
 #r "FSharp.ProjectTemplate.dll"

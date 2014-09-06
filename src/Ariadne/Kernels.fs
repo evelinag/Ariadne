@@ -37,7 +37,12 @@ module SquaredExponential =
             /// Construct a kernel function that can be used in a Gaussian process 
             member this.Kernel (x1, x2) = 
                 let exponent = (x1 - x2)**2.0 / (2.0 * this.Lengthscale**2.0) 
-                this.SignalVariance * exp(-exponent)                  
+                this.SignalVariance * exp(-exponent)      
+                
+            /// Creates Gaussian process with squared exponential kernel function
+            /// and zero mean.
+            member this.GaussianProcess () =
+                GaussianProcess.GaussianProcess(this.Kernel, Some this.NoiseVariance)            
             
     let ofParameters (parameters : float seq) =
         if Seq.length parameters <> 3 then 

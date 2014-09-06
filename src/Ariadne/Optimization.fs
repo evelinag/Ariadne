@@ -22,11 +22,11 @@ module MetropolisHastings =
 /// Sample Gaussian process hyperparameters using MCMC 
 /// with Metropolis-Hastings sampler
 let sampleMetropolisHastings 
-        (initialLocation : Parameters)
         (logLikelihood : Parameters -> float)
         (transitionKernel: Parameters -> Parameters -> float )
         (proposalSampler: Parameters -> Parameters) 
-        (settings: MetropolisHastings.Settings) =
+        (settings: MetropolisHastings.Settings)
+        (initialLocation : Parameters) =
 
     let nParams = initialLocation |> Array.length
 
@@ -52,7 +52,8 @@ module SquaredExponential =
 
     /// Extension of Metropolis-Hastings sampler to find new values of hyperparameters
     /// for squared exponential kernel.
-    let optimizeMetropolisHastings data settings (prior : SquaredExponential.Prior) initialLocation =                
+    let optimizeMetropolisHastings data settings (prior : SquaredExponential.Prior) (initialKernel:SquaredExponential.SquaredExponential) = 
+        let initialLocation = initialKernel.Parameters               
         let proposalDist = Array.init 3 (fun x -> Normal.WithMeanVariance(0.0, 0.01))
 
         let proposalSampler parameters = 
@@ -61,13 +62,14 @@ module SquaredExponential =
         let transitionKernel oldParams newParams = 
             SquaredExponential.transitionProbability proposalDist oldParams newParams
 
-        let logLikelihood parameters = 
+        let logLikFunction parameters = 
             let se = SquaredExponential.ofParameters parameters
             let gp = GaussianProcess.GaussianProcess(se.Kernel, Some(se.NoiseVariance))
             (gp.LogLikelihood [data]) + prior.DensityLn(se)
 
         let newParams = 
-            sampleMetropolisHastings initialLocation logLikelihood transitionKernel proposalSampler settings
+            initialLocation
+            |> sampleMetropolisHastings logLikFunction transitionKernel proposalSampler settings
             |> Array.ofSeq
  
         newParams|> SquaredExponential.ofParameters
@@ -84,9 +86,9 @@ module GradientDescent =
 /// Optimize Gaussian process hyperparameters using simple gradient
 /// descent 
 let gradientDescent 
-        (initialLocation : Parameters)
         (gradientFun : Parameters -> Parameters)
-        (settings : GradientDescent.Settings) =
+        (settings : GradientDescent.Settings)
+        (initialLocation : Parameters) =
 
     let update xs = 
         let gs = gradientFun xs
