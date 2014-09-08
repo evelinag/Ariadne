@@ -1,4 +1,5 @@
-﻿module Ariadne.Kernels
+﻿[<AutoOpen>]
+module Ariadne.Kernels
 
 // Kernel functions (covariance functions)
 

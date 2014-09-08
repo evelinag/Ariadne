@@ -2,7 +2,7 @@
 
 // Ariadne: Gaussian process regression library
 
-
+[<AutoOpen>]
 module GaussianProcess = 
 
     open MathNet.Numerics.LinearAlgebra

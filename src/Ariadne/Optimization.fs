@@ -1,4 +1,5 @@
-﻿module Ariadne.Optimization
+﻿[<AutoOpen>]
+module Ariadne.Optimization
 
 open MathNet.Numerics.Statistics
 open MathNet.Numerics.Statistics.Mcmc
@@ -52,7 +53,7 @@ module SquaredExponential =
 
     /// Extension of Metropolis-Hastings sampler to find new values of hyperparameters
     /// for squared exponential kernel.
-    let optimizeMetropolisHastings data settings (prior : SquaredExponential.Prior) (initialKernel:SquaredExponential.SquaredExponential) = 
+    let optimizeMetropolisHastings (data:Observation<float> seq) settings (prior : SquaredExponential.Prior) (initialKernel:SquaredExponential.SquaredExponential) = 
         let initialLocation = initialKernel.Parameters               
         let proposalDist = Array.init 3 (fun x -> Normal.WithMeanVariance(0.0, 0.01))
 
@@ -65,7 +66,7 @@ module SquaredExponential =
         let logLikFunction parameters = 
             let se = SquaredExponential.ofParameters parameters
             let gp = GaussianProcess.GaussianProcess(se.Kernel, Some(se.NoiseVariance))
-            (gp.LogLikelihood [data]) + prior.DensityLn(se)
+            (gp.LogLikelihood data) + prior.DensityLn(se)
 
         let newParams = 
             initialLocation
@@ -97,16 +98,16 @@ let gradientDescent
     [1..settings.Iterations]
     |> List.fold (fun parameters iter -> update parameters) initialLocation
 
-/// Use only a subsample of data to do gradient descent
-let stochasticGradientDescent
-        (initialLocation : Parameters) 
-        (gradientFun : Observation<'T> seq -> Parameters -> Parameters) 
-        batchSize nIterations =
-    
-    // split data into batch-sized groups or just sample groups of the appropriate batch size?
-    0.0
+///// Use only a subsample of data to do gradient descent
+//let stochasticGradientDescent
+//        (initialLocation : Parameters) 
+//        (gradientFun : Observation<'T> seq -> Parameters -> Parameters) 
+//        batchSize nIterations =
+//    
+//    // split data into batch-sized groups or just sample groups of the appropriate batch size?
+//    0.0
 
-        
+// TODO: Fill function - fills in missing data        
 
 
 
