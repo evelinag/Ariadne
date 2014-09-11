@@ -34,7 +34,7 @@ open Ariadne.Optimization
 let ``Can create Squared exponential from parameters and give them back afterwards`` () = 
     // create squared exponential from parameters
     let parameters = [| 3.5; 1.1; 0.7 |]
-    (SquaredExponential.ofParameters parameters).Parameters
+    (SquaredExp.ofParameters parameters).Parameters
     |> should equal parameters
 
 [<Test>]
@@ -47,7 +47,7 @@ let ``Value of squared exponential kernel is correct`` () =
     *)
     let xs = [ 0.0; 1.0; -2.0; 3.0; 4.0 ]
     let ys = [ 0.0; 1.5; -3.0; 7.0; -1.0 ] 
-    let kernel = SquaredExponential.ofParameters [| 3.5; 1.1; 0.7 |]
+    let kernel = SquaredExp.ofParameters [| 3.5; 1.1; 0.7 |]
     let values = List.map2 (fun x y -> kernel.Kernel (x,y)) xs ys
     let gpmlValues = [
        1.100000000000000;
@@ -61,12 +61,12 @@ let ``Value of squared exponential kernel is correct`` () =
 let ``Prior log likelihood is correct`` () =
     // Compute prior log likelihood numerically
     let parameters = [| 3.5; 1.1; 0.7 |]
-    let kernel = SquaredExponential.ofParameters parameters
+    let kernel = SquaredExp.ofParameters parameters
     // Initialize LogNormal distributions with μ and σ
     let lengthscalePrior = LogNormal(0.1, 0.1)
     let signalPrior = LogNormal(1.0, 0.5)
     let noisePrior = LogNormal(-0.5, 0.1)
-    let prior = SquaredExponential.Prior(lengthscalePrior, signalPrior, noisePrior)
+    let prior = SquaredExp.Prior(lengthscalePrior, signalPrior, noisePrior)
     let loglik = prior.DensityLn kernel
 
     // This is direct translation of probability density function computation 
@@ -85,12 +85,12 @@ let ``Prior log likelihood is correct`` () =
 [<Test>]
 let ``Log likelihood is identical for parameters given individually and as a kernel`` () =
     let parameters = [| 3.5; 1.1; 0.7 |]
-    let kernel = SquaredExponential.ofParameters parameters
+    let kernel = SquaredExp.ofParameters parameters
 
     let lengthscalePrior = LogNormal.WithMeanVariance(1.1, 0.1)
     let signalPrior = LogNormal.WithMeanVariance(1.0, 0.5)
     let noisePrior = LogNormal.WithMeanVariance(0.1, 0.1)
-    let prior = SquaredExponential.Prior(lengthscalePrior, signalPrior, noisePrior)
+    let prior = SquaredExp.Prior(lengthscalePrior, signalPrior, noisePrior)
 
     let loglikKernel = prior.DensityLn kernel
     let loglikParams = prior.ParamsDensityLn parameters
@@ -111,7 +111,7 @@ let ``Log likelihood derivative wrt squared exponential kernel is correct`` () =
 
     let data = [createSampleData n seed]
                    
-    let se = parameters |> SquaredExponential.ofParameters
+    let se = parameters |> SquaredExp.ofParameters
     let gp = GaussianProcess(se.Kernel, Some se.NoiseVariance)
 
     // Compute log likelihood with perturbed parameter
@@ -119,14 +119,14 @@ let ``Log likelihood derivative wrt squared exponential kernel is correct`` () =
         let seNew = 
             let ps = parameters
             ps.[paramIdx] <- newValue
-            ps |> SquaredExponential.ofParameters
+            ps |> SquaredExp.ofParameters
         GaussianProcess(seNew.Kernel, Some seNew.NoiseVariance).LogLikelihood data
     // Perturb a specific parameter and numerically compute gradient
     let numericalGradient idx = numericalDerivative (perturbLoglik idx) (parameters.[idx])
 
     // theoretical gradient
     let computedGradient = 
-        SquaredExponential.fullGradient data parameters
+        SquaredExp.fullGradient data parameters
         |> Array.map (roundToSigDigits 3)
 
     // individual numerical gradients

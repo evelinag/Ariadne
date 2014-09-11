@@ -22,6 +22,10 @@ let ys = xs |> Array.map (fun x -> (sin x) + Normal.Sample(rnd, 0.0, 0.1))
 let data = {Locations = xs; Observations = ys}
 
 Chart.Point(Array.zip xs ys)
+|> Chart.WithMarkers(Size=10,Color=System.Drawing.Color.Black)
+|> Chart.WithXAxis(Min=(-1.0), Max=12.0, Title="inputs")
+|> Chart.WithYAxis(Title="outputs")
+|> Chart.WithYAxis(Min=(-2.0), Max=2.0)
 
 // -------------------------------
 // Basic Gaussian process
@@ -44,7 +48,7 @@ let lengthscalePrior = LogNormal.WithMeanVariance(1.0, 1.0, rnd)
 let variancePrior = LogNormal.WithMeanVariance(1.0, 1.0, rnd)
 let noisePrior = LogNormal.WithMeanVariance(0.1, 0.1, rnd)
 
-let sep = SquaredExponential.Prior(lengthscalePrior, variancePrior, noisePrior)
+let sep = SquaredExp.Prior(lengthscalePrior, variancePrior, noisePrior)
 let se = sep.Sample()
 let gp = GaussianProcess.GaussianProcess<float>(se.Kernel, Some(se.NoiseVariance))
 gp |> GaussianProcess.plot [data]
@@ -56,10 +60,14 @@ open Ariadne.Optimization
 // Metropolis Hastings sampling
 let newParams = 
     se
-    |> SquaredExponential.optimizeMetropolisHastings data MetropolisHastings.defaultSettings sep
+    |> SquaredExp.optimizeMetropolisHastings [data] MetropolisHastings.defaultSettings sep
 
 let newGp = newParams.GaussianProcess()
 newGp |> GaussianProcess.plot [data]
+newGp |> GaussianProcess.plotRange (-1.0, 12.0) [data]
+|> Chart.WithXAxis(Min=(-1.0), Max=12.0, Title="inputs")
+|> Chart.WithYAxis(Title="outputs")
+
 gp |> GaussianProcess.plot [data]
 printfn "Original Gaussian process likelihood: %f" (gp.LogLikelihood [data])
 printfn "Optimized Gaussian process likelihood: %f" (newGp.LogLikelihood [data])
@@ -67,11 +75,35 @@ printfn "Optimized Gaussian process likelihood: %f" (newGp.LogLikelihood [data])
 // Gradient descent - experimental!
 let settings = {GradientDescent.Iterations = 100000; GradientDescent.StepSize = 0.0000001}
 let newParams = 
-    gradientDescent (SquaredExponential.fullGradient [data]) settings (se.Parameters)
-    |> SquaredExponential.ofParameters
+    gradientDescent (SquaredExp.fullGradient [data]) settings (se.Parameters)
+    |> SquaredExp.ofParameters
 let newGp = GaussianProcess.GaussianProcess<float>(newParams.Kernel, Some(newParams.NoiseVariance))
 printfn "Original Gaussian process likelihood: %f" (gp.LogLikelihood [data])
 printfn "Optimized Gaussian process likelihood: %f" (newGp.LogLikelihood [data])
 
 newGp |> GaussianProcess.plot [data]
 gp |> GaussianProcess.plot [data]
+
+
+
+
+//--------------------------
+let n = 10
+let xs = 
+    [| for i in 0..n-1 -> rnd.NextDouble() * 10.0 |]
+let ys = xs |> Array.map (fun x -> (exp (-x)) * (sin x) + Normal.Sample(rnd, 0.0, 0.1))
+let data = 
+    [| for i in 0..4 ->
+        {Locations = xs; Observations = ys |> Array.map (fun y -> y + Normal.Sample(rnd, 0.0, 0.1))} |]
+
+Chart.Point(Array.zip xs ys)
+
+let newParams = 
+    se
+    |> SquaredExp.optimizeMetropolisHastings data MetropolisHastings.defaultSettings sep
+
+let newGp = newParams.GaussianProcess()
+newGp |> GaussianProcess.plot data
+newGp |> GaussianProcess.plotRange (-1.0, 11.0) data
+|> Chart.WithXAxis(Min=(-1.0), Max=11.0)
+

@@ -42,7 +42,7 @@ let ``Gaussian log likelihood is correct for squared exponenital kernel`` () =
 
 [<Test>]
 let ``Covariance matrix with small noise is positive definite`` () =
-    let kernel = SquaredExponential.SquaredExponential(1.1, 1.5, 1e-7)
+    let kernel = SquaredExp.SquaredExp(1.1, 1.5, 1e-7)
 
     let checkCovarianceMatrix (inputs: float[]) =
         let data = 
@@ -63,7 +63,7 @@ let ``Covariance matrix with small noise is positive definite`` () =
 
 [<Test>]
 let ``Multivariate Normal log likelihood is computed correctly`` () = 
-    let kernel = SquaredExponential.SquaredExponential(1.1, 1.5, 0.3)
+    let kernel = SquaredExp.SquaredExp(1.1, 1.5, 0.3)
 
     let checkMvnLoglik (values : float[]) = 
         let meanValues = validValues values
@@ -94,7 +94,7 @@ let ``Multivariate Normal log likelihood is computed correctly`` () =
 
 [<Test>]
 let ``Posterior Gaussian process mean and covariance is computed correctly`` () = 
-    let kernel = SquaredExponential.SquaredExponential(1.1, 1.5, 0.3)
+    let kernel = SquaredExp.SquaredExp(1.1, 1.5, 0.3)
     let gp = GaussianProcess(kernel.Kernel, ZeroMean, Some kernel.NoiseVariance)
 
     let checkPosteriorGP (observedValues : float[]) (newValues : float[]) =
@@ -124,7 +124,7 @@ let ``Posterior Gaussian process mean and covariance is computed correctly`` () 
 
                 let expectedCovarianceSum = 
                     newCovMatrix - (crossCovMatrix * invCovMatrix) * crossCovMatrix.Transpose()
-                    |> addObservationNoise (Some kernel.NoiseVariance)
+                    |> addObservationNoise (Some kernel.NoiseVariance)                
                     |> Matrix.sum
 
                 let data = [{Observations = (observations |> Vector.toArray); Locations = locations}]
@@ -148,7 +148,7 @@ let ``Gaussian process log likelihood is corrext``() =
          Observations =
             [|0.8428437907; 0.9447371242; 0.8822730762; -0.6999179623; 0.8802120975|]}
 
-    let kernel = SquaredExponential.SquaredExponential(1.1, 1.5, 0.3)
+    let kernel = SquaredExp.SquaredExp(1.1, 1.5, 0.3)
     let gp = kernel.GaussianProcess()
     let computedLoglik = gp.LogLikelihood [data]
 
@@ -174,7 +174,7 @@ let ``Gaussian process predictive log likelihood is correct`` () =
           {Locations = [|2.486685842; 1.107439772; 4.670106799|];
            Observations = [|0.7270989633; 0.8053940883; -0.991954721|];}
 
-    let kernel = SquaredExponential.SquaredExponential(1.1, 1.5, 0.3)
+    let kernel = SquaredExp.SquaredExp(1.1, 1.5, 0.3)
     let gp = kernel.GaussianProcess()
     
     let predictiveLoglik = gp.PredictiveLogLikelihood [data] newData
@@ -205,7 +205,7 @@ let ``Gaussian process predictive mean and covariance are correct`` () =
           {Locations = [|2.486685842; 1.107439772; 4.670106799|];
            Observations = [|0.7270989633; 0.8053940883; -0.991954721|];}
 
-    let kernel = SquaredExponential.SquaredExponential(1.1, 1.5, 0.3)
+    let kernel = SquaredExp.SquaredExp(1.1, 1.5, 0.3)
     let gp = kernel.GaussianProcess()
     let predictedMean, predictedVar = gp.Predict [data] newData.Locations
     
@@ -219,10 +219,10 @@ let ``Gaussian process predictive mean and covariance are correct`` () =
        1.209773521063414
        1.143094565045542 |]
 
-    predictedMean |> Vector.toArray |> Array.sum 
+    predictedMean |> Array.sum 
     |> should (equalWithin 1e-8) (expectedMean |> Array.sum)
 
-    predictedVar |> Vector.toArray |> Array.sum 
+    predictedVar |> Array.sum 
     |> should (equalWithin 1e-8) (expectedVar |> Array.sum)
 
 

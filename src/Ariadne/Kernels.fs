@@ -9,7 +9,7 @@ open MathNet.Numerics.LinearAlgebra
 open Ariadne
 open Ariadne.GaussianProcess
 
-module SquaredExponential =
+module SquaredExp =
     /// Isotropic squared exponential covariance function
     /// also known as the Gaussian kernel or RBF kernel 
     /// 
@@ -17,7 +17,7 @@ module SquaredExponential =
     ///
     /// σ² is the signal variance
     /// σ²_{noise} is the noise variance
-    type SquaredExponential
+    type SquaredExp
         (lengthscale: float, signalVariance: float, noiseVariance: float) = 
         do if (lengthscale <= 0.0 || signalVariance <= 0.0 || noiseVariance <= 0.0) then
             failwith "Parameters of Squared exponential kernel must be positive."
@@ -25,32 +25,31 @@ module SquaredExponential =
         member this.SignalVariance = signalVariance
         member this.NoiseVariance = noiseVariance
 
-        with
-            member this.Parameters = 
-                [| this.Lengthscale; this.SignalVariance; this.NoiseVariance |]                
+        member this.Parameters = 
+            [| this.Lengthscale; this.SignalVariance; this.NoiseVariance |]                
 
-            override this.ToString() = 
-                "Squared exponential, l = " 
-                + this.Lengthscale.ToString("0.00") 
-                + ", σ² = " + this.SignalVariance.ToString("0.00")
-                + ", σ²_{noise} = " + this.NoiseVariance.ToString("0.00")
+        override this.ToString() = 
+            "Squared exponential, l = " 
+            + this.Lengthscale.ToString("0.00") 
+            + ", σ² = " + this.SignalVariance.ToString("0.00")
+            + ", σ²_{noise} = " + this.NoiseVariance.ToString("0.00")
         
-            /// Construct a kernel function that can be used in a Gaussian process 
-            member this.Kernel (x1, x2) = 
-                let exponent = (x1 - x2)**2.0 / (2.0 * this.Lengthscale**2.0) 
-                this.SignalVariance * exp(-exponent)      
+        /// Construct a kernel function that can be used in a Gaussian process 
+        member this.Kernel (x1, x2) = 
+            let exponent = (x1 - x2)**2.0 / (2.0 * this.Lengthscale**2.0) 
+            this.SignalVariance * exp(-exponent)      
                 
-            /// Creates Gaussian process with squared exponential kernel function
-            /// and zero mean.
-            member this.GaussianProcess () =
-                GaussianProcess.GaussianProcess(this.Kernel, Some this.NoiseVariance)            
+        /// Creates Gaussian process with squared exponential kernel function
+        /// and zero mean.
+        member this.GaussianProcess () =
+            GaussianProcess.GaussianProcess(this.Kernel, Some this.NoiseVariance)            
             
     let ofParameters (parameters : float seq) =
         if Seq.length parameters <> 3 then 
             failwith "Squared exponential kernel requires 3 parameters."
         else
             let paramArray = parameters |> Seq.toArray
-            SquaredExponential(paramArray.[0], paramArray.[1], paramArray.[2])
+            SquaredExp(paramArray.[0], paramArray.[1], paramArray.[2])
 
 
     type Prior
@@ -61,17 +60,16 @@ module SquaredExponential =
         member this.SignalVariancePrior = signalVariancePrior
         member this.NoiseVariancePrior = noiseVariancePrior
 
-    with 
         /// Sample from the prior distribution for squared exponential kernel
         member this.Sample() =
             let l = this.LengthscalePrior.Sample()
             let v = this.SignalVariancePrior.Sample()
             let n = this.NoiseVariancePrior.Sample()
-            SquaredExponential(l, v, n)
+            SquaredExp(l, v, n)
 
         /// Compute log likelihood of specific values of lengthscale and  under
         /// the prior distribution.
-        member this.DensityLn (se:SquaredExponential) = 
+        member this.DensityLn (se:SquaredExp) = 
             this.LengthscalePrior.DensityLn(se.Lengthscale)
             + this.SignalVariancePrior.DensityLn(se.SignalVariance)
             + this.NoiseVariancePrior.DensityLn(se.NoiseVariance)

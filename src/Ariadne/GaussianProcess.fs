@@ -101,11 +101,11 @@ module GaussianProcess =
                 // Stable computation using Cholesky decomposition
                 let cholCovariance = observedCovariance.Cholesky()
                 let newMean = crossCovariance * cholCovariance.Solve(allObservations |> DenseVector.ofArray)
-                let newCovMatrix = 
+                let newCovariance = 
                     newCovariance - crossCovariance * cholCovariance.Solve(crossCovariance.Transpose())
                     |> addObservationNoise this.NoiseVariance
-
-                newMean, newCovMatrix
+                    
+                newMean, newCovariance
             else
                 // return prior Gaussian process in case no data are previously observed
                 let newCovariance = 
@@ -148,12 +148,13 @@ module GaussianProcess =
             let allLocations = data |> Seq.map (fun d -> d.Locations) |> Array.concat
             let allObservations = data |> Seq.map (fun d -> d.Observations) |> Array.concat
             
-            let meanVector, covarianceMatrix = 
+            let meanVector, varianceMatrix = 
                 this.PosteriorGaussianProcess data newLocations
             // meanVector is the mean of the posterior Gaussian process
             // variance - diagonal of the posterior covariance function
-            let varianceVector = covarianceMatrix.Diagonal()
-            meanVector, varianceVector
+            let varianceArr = varianceMatrix.Diagonal() |> Vector.toArray
+            let meanArr = meanVector |> Vector.toArray
+            meanArr, varianceArr
 
 
     /// Displays a Gaussian process regression curve given a set of data points
@@ -165,8 +166,10 @@ module GaussianProcess =
         let meanVector, varianceVector = 
             gp.Predict data t
 
-        let lower_s2 = meanVector - 1.0 * (varianceVector.Map (fun x -> sqrt x)) |> Array.ofSeq
-        let upper_s2 = meanVector + 1.0 * (varianceVector.Map (fun x -> sqrt x)) |> Array.ofSeq
+        let lower_s2 = 
+            Array.map2 (fun m var -> m - 2.0 * (sqrt var)) meanVector varianceVector
+        let upper_s2 = 
+            Array.map2 (fun m var -> m + 2.0 * (sqrt var)) meanVector varianceVector
 
         let plotData =
             data |> Seq.map (fun dt -> Array.zip dt.Locations dt.Observations )
@@ -177,7 +180,8 @@ module GaussianProcess =
             |> Chart.WithStyling(BorderWidth=3);
             Chart.Point(plotData, Color = System.Drawing.Color.Black) ]
         |> Chart.Combine
-     
+        |> Chart.WithXAxis(Min = timeMin, Max = timeMax)
+
     /// Displays a Gaussian process regression curve given a set of data points
     /// Shows a region of +/- 1 standard deviations from the posterior mean.             
     let plot (data:Observation<float> seq) (gp:GaussianProcess<float>) =

@@ -49,22 +49,22 @@ let sampleMetropolisHastings
             samples |> Array.averageBy (fun s ->  log s.[p])
             |> exp |]
 
-module SquaredExponential =
+module SquaredExp =
 
     /// Extension of Metropolis-Hastings sampler to find new values of hyperparameters
     /// for squared exponential kernel.
-    let optimizeMetropolisHastings (data:Observation<float> seq) settings (prior : SquaredExponential.Prior) (initialKernel:SquaredExponential.SquaredExponential) = 
+    let optimizeMetropolisHastings (data:Observation<float> seq) settings (prior : SquaredExp.Prior) (initialKernel:SquaredExp.SquaredExp) = 
         let initialLocation = initialKernel.Parameters               
         let proposalDist = Array.init 3 (fun x -> Normal.WithMeanVariance(0.0, 0.01))
 
         let proposalSampler parameters = 
-            SquaredExponential.randomWalkProposal proposalDist parameters
+            SquaredExp.randomWalkProposal proposalDist parameters
 
         let transitionKernel oldParams newParams = 
-            SquaredExponential.transitionProbability proposalDist oldParams newParams
+            SquaredExp.transitionProbability proposalDist oldParams newParams
 
         let logLikFunction parameters = 
-            let se = SquaredExponential.ofParameters parameters
+            let se = SquaredExp.ofParameters parameters
             let gp = GaussianProcess.GaussianProcess(se.Kernel, Some(se.NoiseVariance))
             (gp.LogLikelihood data) + prior.DensityLn(se)
 
@@ -73,7 +73,7 @@ module SquaredExponential =
             |> sampleMetropolisHastings logLikFunction transitionKernel proposalSampler settings
             |> Array.ofSeq
  
-        newParams|> SquaredExponential.ofParameters
+        newParams|> SquaredExp.ofParameters
 
 
 
