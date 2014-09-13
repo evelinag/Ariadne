@@ -64,7 +64,7 @@
     <Compile Include="GaussianProcess.fs" />
     <Compile Include="Kernels.fs" />
     <Compile Include="Optimization.fs" />
-    <None Include="GaussianProcessUsage.fsx" />
+    <None Include="script.fsx" />
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>

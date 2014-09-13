@@ -7,74 +7,126 @@
 #load "../../packages/FSharp.Charting.0.90.7/FSharp.Charting.fsx"
 #I "../../packages/FSharp.Data.2.0.14/lib/net40/"
 
+#r "Ariadne.dll"
+
 (**
 Covariance functions  
 ==========================================
 
-The only currently implemented covariance function is the squared exponential.
+Covariance functions (also called kernels) are the key ingredient in using Gaussian processes. 
+They encode all
+assumptions about the form of function that we are modelling. In general, covariance represents
+some form of distance or similarity. 
+Consider two input points (locations) $ x_i $ and $ x_j $ with corresponding observed 
+values $ y_i $ and $ y_j $. If the inputs $ x_i $ and $ x_j $ are close to each other,  we 
+generally expect that 
+ $ y_i $ and $ y_j $ will be close as well. This measure of similarity is embedded in the covariance
+ function. 
 
+
+The Ariadne library currently implements only the squared exponential covariance function.
+
+Squared exponential kernel
+--------------------------------
 $$$
-k(
+k(x_i, x_j) = \sigma^2 \exp\left( - \frac{(x_i - x_j)^2}{2 l^2} \right) + \delta_{ij} \sigma_{\text{noise}}^2
 
-Gaussian process - doesn't assume specific curve as a relation between 
-data, assumes only some form of relation within the data (like smoothness)
-
-- It's a Bayesian method - assumes some prior over the data, computes posterior
-using the data etc. 
-
-- 
+where $\sigma^2 > 0 $ is the signal variance, $l > 0$ is the lengthscale and $\sigma^2_{\text{noise}} >= 0$ is the
+noise covariance. The noise variance is applied only when $i = j$. 
 
 
+Squared exponential is appropriate for modelling very smooth functions.
+The parameters have the following interpretation:
 
-How to fit a model to World Bank data
+  * __Lengthscale $l$__ describes how smooth a function is. Small lengthscale value means that function
+  values can change quickly, large values characterize functions that change only slowly. 
+  Lengthscale also determines how far we can reliably extrapolate from the training data.
 
+  <div class="row">
+      <div class="span4">
+        Small lengthscale
+        <img src="img/smallLengthscale.png" />
+      </div>
+      <div class="span4">
+        Large lengthscale
+        <img src="img/largeLengthscale.png" />
+      </div>
+  </div>
+
+  * __Signal variance $\sigma^2$__ is a scaling factor. It determines variation of function values from 
+  their mean. Small value of $\sigma^2$ characterize functions that stay close to their mean value,
+  larger values allow more variation. If the signal variance is too large, the modelled function 
+  will be free to chase outliers.
+
+  <div class="row">
+      <div class="span4">
+        Small signal variance
+        <img src="img/smallSignalVariance.png" />
+      </div>
+      <div class="span4">
+        Large signal variance
+        <img src="img/largeSignalVariance.png" />
+      </div>
+  </div>
+
+  * __Noise variance $\sigma^2_{\text{noise}}$__ is formally not a part of the covariance function itself. 
+  It is used by the Gaussian process model to allow for noise present in training data. This parameter
+  specifies how much noise is expected to be present in the data.
+
+  <div class="row">
+      <div class="span4">
+        Small noise variance
+        <img src="img/smallNoiseVariance.png" />
+      </div>
+      <div class="span4">
+        Large noise variance
+        <img src="img/largeNoiseVariance.png" />
+      </div>
+  </div>
+
+Squared exponential kernel can be created from its parameters.
 *)
-#r "MathNet.Numerics.dll"
-#r "MathNet.Numerics.FSharp.dll"
-
-#r "Ariadne.dll"
-open Ariadne.GaussianProcess
 open Ariadne.Kernels
 
-#r "FSharp.Data.dll"
-open FSharp.Data
+// hyperparameters
+let lengthscale = 3.0
+let signalVariance = 15.0
+let noiseVariance = 1.0
 
-let data = WorldBankData.GetDataContext()
+let sqExp = SquaredExp.SquaredExp(lengthscale, signalVariance, noiseVariance)
 
-let gpData = 
-    data
-      .Countries.``United Kingdom``
-      .Indicators.``School enrollment, tertiary (% gross)``
-    |> Seq.toArray
-    |> Array.map (fun (year, n) -> {Locations = [| float year|]; Observations = [|n|]})
-
-let kernel = SquaredExp.SquaredExp(2.0, 10.0, 1.0)
-let gp = kernel.GaussianProcess()
-gp |> plot gpData
-
-// Specify a prior
-open MathNet.Numerics.Distributions
-open Ariadne.Optimization
-
-let rnd = System.Random()
-let lengthscalePrior = LogNormal.WithMeanVariance(2.0, 5.0, rnd)
-let variancePrior = LogNormal.WithMeanVariance(1.0, 5.0, rnd)
-let noisePrior = LogNormal.WithMeanVariance(1.0, 1.0, rnd)
-
-let prior = SquaredExp.Prior(lengthscalePrior, variancePrior, noisePrior)
-
-// Metropolis Hastings sampling
-let newParams = 
-    kernel
-    |> SquaredExp.optimizeMetropolisHastings gpData MetropolisHastings.defaultSettings prior
-
-let newGp = newParams.GaussianProcess()
-newGp |> plot gpData
+(*** include-value:sqExp ***)
+(**
+We can also use it to directly initialize a Gaussian process.
+*)
+let gp = sqExp.GaussianProcess()
 
 (**
-Explanation of kernel parameters 
-- lengthscale - how close on the x axis points need to be to affect each other
-- signal variance - how strong is the force driving the regression curve away from the mean
- (which is zero in this case)
-- noise - how much noise do we expect
+Information on how to select parameters for the squared exponential automatically
+are in the [Optimization](optimization.html) section of this website.
+
+Creating custom covariance functions
+-------------------------------------------------
+Any covariance function can be used in conjunction with Gaussian processes in Ariadne.
+Gaussian process constructor requires simply a function which takes a pair of input locations and
+computes their covariance.
+
+General covariance function (kernel) has the following type:
+    
+        type Kernel<'T> = 'T * 'T -> float
+
+For example, we can define a simple _linear kernel_ as follows:
+*)
+open Ariadne.GaussianProcess
+
+let linearKernel (x1, x2) = 
+    let var = 1.0
+    let bias = 0.0
+    let offset = 0.0
+    bias + var * (x1 - offset)*(x2 - offset)
+
+let gpLinear = GaussianProcess(linearKernel, Some 1.0)
+
+(**
+This covariance function corresponds to a non-efficient way of doing Bayesian linear regression.
 *)

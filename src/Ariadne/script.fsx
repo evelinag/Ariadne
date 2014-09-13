@@ -107,3 +107,43 @@ newGp |> GaussianProcess.plot data
 newGp |> GaussianProcess.plotRange (-1.0, 11.0) data
 |> Chart.WithXAxis(Min=(-1.0), Max=11.0)
 
+
+
+//=========================================
+#I "../../bin/"
+#I "../../packages/MathNet.Numerics.3.2.3/lib/net40/"
+#I "../../packages/MathNet.Numerics.FSharp.3.2.3/lib/net40/"
+#I "../../packages/FSharp.Charting.0.90.7/"
+#I "../../packages/FSharp.Data.2.0.14/lib/net40/"
+
+#r "Ariadne.dll"
+open Ariadne.GaussianProcess
+open Ariadne.Kernels
+
+#r "FSharp.Data.dll"
+#r "FSharp.Charting.dll"
+#r "MathNet.Numerics.dll"
+
+open FSharp.Data
+open FSharp.Charting
+
+// Gaussian process data
+let data =  [
+   {Locations =
+     [|1988.0; 1993.0; 1996.0; 1999.0; 2001.0; 2002.0; 2003.0; 2004.0; 2005.0;
+       2006.0; 2007.0; 2008.0; 2009.0|];
+    Observations =
+     [|-15.52307692; 9.056923077; 6.786923077; -1.843076923; 0.2769230769;
+       -3.623076923; -2.063076923; -2.183076923; -1.813076923; 2.806923077;
+       4.386923077; 2.946923077; 0.7869230769|];}]
+
+
+
+let lengthscale = 2.0
+let signalVariance = 15.0
+let noiseVariance = 10.0
+
+let sqExp = SquaredExp.SquaredExp(lengthscale, signalVariance, noiseVariance)
+
+let gp = sqExp.GaussianProcess()
+gp |> plot data |> Chart.WithXAxis(false)

@@ -45,15 +45,16 @@ let sampleMetropolisHastings
 
     // Summarize samples - return their mean value 
     [| for p in 0..nParams-1 -> 
-            // compute average in log space
-            samples |> Array.averageBy (fun s ->  log s.[p])
-            |> exp |]
+        // compute average in log space
+        samples |> Array.averageBy (fun s ->  log s.[p])
+        |> exp |]
 
 module SquaredExp =
 
     /// Extension of Metropolis-Hastings sampler to find new values of hyperparameters
-    /// for squared exponential kernel.
-    let optimizeMetropolisHastings (data:Observation<float> seq) settings (prior : SquaredExp.Prior) (initialKernel:SquaredExp.SquaredExp) = 
+    /// for squared exponential kernel. 
+    /// Runs standard Metropolis algorithm with symmetric proposal distribution.
+    let optimizeMetropolis (data:Observation<float> seq) settings (prior : SquaredExp.Prior) (initialKernel:SquaredExp.SquaredExp) = 
         let initialLocation = initialKernel.Parameters               
         let proposalDist = Array.init 3 (fun x -> Normal.WithMeanVariance(0.0, 0.01))
 
@@ -82,7 +83,7 @@ module GradientDescent =
         {Iterations : int; StepSize : float}
 
     let defaultSettings = 
-        {Iterations = 100; StepSize = 0.05}
+        {Iterations = 100; StepSize = 0.01}
 
 /// Optimize Gaussian process hyperparameters using simple gradient
 /// descent 
@@ -98,16 +99,6 @@ let gradientDescent
     [1..settings.Iterations]
     |> List.fold (fun parameters iter -> update parameters) initialLocation
 
-///// Use only a subsample of data to do gradient descent
-//let stochasticGradientDescent
-//        (initialLocation : Parameters) 
-//        (gradientFun : Observation<'T> seq -> Parameters -> Parameters) 
-//        batchSize nIterations =
-//    
-//    // split data into batch-sized groups or just sample groups of the appropriate batch size?
-//    0.0
-
-// TODO: Fill function - fills in missing data        
 
 
 

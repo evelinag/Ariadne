@@ -26,14 +26,15 @@ We will introduce Ariadne through a practical example. Consider a time series da
 missing values. For example, we might be interested in income distribution and inequality 
 in Russia over the past 30 years. We can download available data from the World Bank
 using [FSharp.Data library](http://fsharp.github.io/FSharp.Data/). 
-We will also use [FSharp.Charting](http://fsharp.github.io/FSharp.Charting/)
-to display the data.
+We will use [FSharp.Charting](http://fsharp.github.io/FSharp.Charting/)
+to display the data. We will also need a reference to [Math.NET Numerics](http://numerics.mathdotnet.com/).
 *)
 
 (*** define-output:rawPlot ***)
 
 #r "FSharp.Data.dll"
 #r "FSharp.Charting.dll"
+#r "MathNet.Numerics.dll"
 
 open FSharp.Data
 open FSharp.Charting
@@ -70,7 +71,7 @@ let xs = years |> Array.map float
 // centred outputs
 let ys = 
     let avg = Array.average values
-    values |> Array.map ((-) avg)
+    values |> Array.map (fun y -> y - avg)
 
 // Gaussian process data
 let data = [{Locations = xs; Observations = ys}]
@@ -99,13 +100,6 @@ generally expect that
  $ y_i $ and $ y_j $ will be close as well. This measure of similarity is embedded in the covariance
  function. 
 
-General covariance function (kernel) has the following type:
-    
-        type Kernel<'T> = 'T * 'T -> float
-
-Every covariance function takes a pair of input locations and computes their 'similarity',
-which is a `float` number. 
-
 Ariadne currently contains implementation of the most commonly used covariance function, 
 the squared exponential kernel. For more information see [Covariance functions](covarianceFunctions.html).
 The following snippet creates the squared exponential covariance function. 
@@ -120,7 +114,8 @@ let sqExp = SquaredExp.SquaredExp(lengthscale, signalVariance, noiseVariance)
 
 (**
 The hyperparameters regulate specific behaviour of the squared exponential kernel. For details see
-the [Covariance functions](covarianceFunctions.html) section.
+the [Covariance functions](covarianceFunctions.html) section. Details on how to select
+values for hyperparameters are in the [Optimization](optimization.html) section of this website.
 
 Gaussian process regression
 -------------------------------------------
@@ -142,6 +137,8 @@ let gp1 = GaussianProcess(covFun, ZeroMean, Some noiseVariance)
 
 (**
 Now that we created a Gaussian process, we can use it to compute regression function.
+Please note that current implementation of inference in Gaussian processes is exact
+and therefore requires $\mathcal{O} (N^3)$ time, where $N$ is the number of data points.
 
 We can compute log likelihood to see how well the Gaussian process model 
 fits our World bank data. The log likelihood may be used to compare different
@@ -183,10 +180,13 @@ range of values. We can use it to draw a graph of estimated Gini index values be
 1995 to 2015.
 *)
 (*** define-output:gpPlot ***)
-#load "FSharp.Charting.fsx"
-open FSharp.Charting
 
 gp |> plotRange (1985.0, 2015.0) data
 
 (*** include-it:gpPlot ***)
 
+(**
+Continue to [Covariance functions](covarianceFunctions.html) to find out more about the
+squared exponential covariance. [Optimization](optimization.html) provides an overview of 
+how to fit hyperparameters of covariance functions (lengthscale, signal variance etc).
+*)

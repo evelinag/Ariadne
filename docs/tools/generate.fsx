@@ -95,3 +95,15 @@ let buildDocumentation () =
 copyFiles()
 buildDocumentation()
 buildReference()
+
+// Re-generate all documentation
+// requires changing all files
+let rebuildDocumentation () =
+    // Touch all files 
+    let files = Directory.EnumerateFiles(content)
+    for file in files do
+        File.SetLastWriteTime(file, System.DateTime.Now)
+    // Run standard build
+    buildDocumentation()
+
+
