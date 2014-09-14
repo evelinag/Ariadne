@@ -1,1 +1,144 @@
-GH page
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Ariadne: F# library for Gaussian process regression
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="F# package for Gaussian process regression."/>
+    <meta name="author" content="Evelina Gabasova"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <link type="text/css" rel="stylesheet" href="/Ariadne/content/style.css" />
+    <script type="text/javascript" src="/Ariadne/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/evelinag/Ariadne">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/Ariadne/index.html">Ariadne</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1>Ariadne: F# library for Gaussian process regression</h1>
+
+<p>Ariadne is an F# library for fitting Gaussian process regression models.</p>
+
+<p><img src="img/gp.png" alt="Example GP" /></p>
+
+<h2>What are Gaussian processes?</h2>
+
+<p>Let's start with an example. Assume we have a set of noisy time series 
+observations, like the one below. We would like to model relationship
+between the input values and the outputs.</p>
+
+<p><img src="img/sampleData.png" alt="Sample data" /></p>
+
+<p>When using standard regression models, like linear regression, we 
+have to assume there is a specific parametric relation between 
+the observed data.</p>
+
+<p>With Gaussian process regression, we have to use a different types
+of assumptions. In this case, we will assume that the underlying
+function is quite smooth with some amount of noise. 
+What Gaussian processes give us is a flexible regression function 
+which takes account of noise in observed data and provides
+a measure of uncertainty in the regressed values.</p>
+
+<p>In the example below,  the blue line represents the predicted mean value of 
+the estimated function. 
+The grey region shows the distance of +/- two standard deviations from the mean,
+which corresponds to 95% confidence interval.
+This quantity shows how uncertain the model is about value of the 
+function. Note that the grey area is wider in locations where 
+there are no observations, and shrinks when a value is observed.</p>
+
+<p><img src="img/sampleGP.png" alt="Sample Gaussian process" /></p>
+
+<p>If you want to learn more about Gaussian processes, the best resource is the
+<a href="http://www.gaussianprocess.org/gpml/">Gaussian Processes for Machine Learning</a> book.</p>
+
+<h2>How to get Ariadne</h2>
+
+<div class="row">
+  <div class="span1"></div>
+  <div class="span6">
+    <div class="well well-small" id="nuget">
+      The Ariadne library can be <a href="https://nuget.org/packages/Ariadne">installed from NuGet</a>:
+      <pre>PM> Install-Package Ariadne</pre>
+    </div>
+  </div>
+  <div class="span1"></div>
+</div> 
+
+<h2>Samples &amp; documentation</h2>
+
+<ul>
+<li><p><a href="tutorial.html">Tutorial</a> shows how to fit a Gaussian process model using Ariadne.</p></li>
+<li><p><a href="covarianceFunctions.html">Covariance functions</a> gives an overview of implemented covariance functions.</p></li>
+<li><p><a href="optimization.html">Optimization</a> shows implemented methods which can be used to fit hyperparameters 
+of Gaussican processes.</p></li>
+<li><p><a href="reference/index.html">API Reference</a> contains automatically generated documentation for all types, modules
+and functions in the library.</p></li>
+</ul>
+
+<h2>Information on Gaussian processes</h2>
+
+<ul>
+<li><p><a href="http://gaussianprocess.org/gpml/">Gaussian Processes for Machine Learning</a> is a great
+book by Carl E. Rasmussen and Christopher K. I. Williams. It is available online for free.</p></li>
+<li><p><a href="http://mlg.eng.cam.ac.uk/duvenaud/cookbook/index.html">The Kernel Cookbook</a> is a nice
+overview of different kernel functions that can be used in conjuction with Gaussian processes.</p></li>
+</ul>
+
+<h2>Contributing and copyright</h2>
+
+<p>The project is hosted on <a href="https://github.com/evelinag/Ariadne">GitHub</a> where you can <a href="https://github.com/evelinag/Ariadne/issues">report issues</a>, fork 
+the project and submit pull requests. 
+The library is available under Apache 2.0 license, which allows modification and 
+redistribution for both commercial and non-commercial purposes. For more information see the 
+<a href="https://github.com/evelinag/Ariadne/blob/master/LICENSE">License file</a> in the GitHub repository.</p>
+
+
+        </div>
+        <div class="span3">
+          <img src="/Ariadne/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">Ariadne</li>
+            <li><a href="/Ariadne/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/Ariadne">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/Ariadne/tutorial.html">Tutorial</a></li>
+            <li><a href="/Ariadne/covarianceFunctions.html">Covariance functions</a></li>
+            <li><a href="/Ariadne/optimization.html">Optimization</a></li>
+            <li><a href="/Ariadne/howto.html">Quick how-to</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/Ariadne/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/evelinag/Ariadne"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>

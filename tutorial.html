@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Getting started: Simple regression with Ariadne
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="F# package for Gaussian process regression."/>
+    <meta name="author" content="Evelina Gabasova"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <link type="text/css" rel="stylesheet" href="/Ariadne/content/style.css" />
+    <script type="text/javascript" src="/Ariadne/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/evelinag/Ariadne">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/Ariadne/index.html">Ariadne</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1>Getting started: Simple regression with Ariadne</h1>
+
+<p>This tutorial shows how to use the Ariadne library for Gaussian process regression.</p>
+
+<p>As a first step, we need to get <code>Ariadne.dll</code> from <a href="https://nuget.org/packages/Ariadne">NuGet</a>.
+Then we can load the Ariadne library inside F#.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="prep">#r</span> <span class="s">&quot;</span><span class="s">Ariadne</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">Ariadne</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">GaussianProcess</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 3)" onmouseover="showTip(event, 'fs1', 3)" class="i">Ariadne</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 4)" onmouseover="showTip(event, 'fs3', 4)" class="i">Kernels</span></pre>
+</td>
+</tr>
+</table>
+
+<p>We will introduce Ariadne through a practical example. Consider a time series dataset with
+missing values. For example, we might be interested in income distribution and inequality 
+in Russia over the past 30 years. We can download available data from the World Bank
+using <a href="http://fsharp.github.io/FSharp.Data/">FSharp.Data library</a>. 
+We will use <a href="http://fsharp.github.io/FSharp.Charting/">FSharp.Charting</a>
+to display the data. We will also need a reference to <a href="http://numerics.mathdotnet.com/">Math.NET Numerics</a>.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="prep">#r</span> <span class="s">&quot;</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Data</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
+<span class="prep">#r</span> <span class="s">&quot;</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Charting</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
+<span class="prep">#r</span> <span class="s">&quot;</span><span class="s">MathNet</span><span class="s">.</span><span class="s">Numerics</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
+
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs4', 5)" onmouseover="showTip(event, 'fs4', 5)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs5', 6)" onmouseover="showTip(event, 'fs5', 6)" class="i">Data</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs4', 7)" onmouseover="showTip(event, 'fs4', 7)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 8)" onmouseover="showTip(event, 'fs6', 8)" class="i">Charting</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 9)" onmouseover="showTip(event, 'fs7', 9)" class="i">wb</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 10)" onmouseover="showTip(event, 'fs8', 10)" class="i">WorldBankData</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 11)" onmouseover="showTip(event, 'fs9', 11)" class="i">GetDataContext</span>()
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 12)" onmouseover="showTip(event, 'fs10', 12)" class="i">rawData</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs7', 13)" onmouseover="showTip(event, 'fs7', 13)" class="i">wb</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 14)" onmouseover="showTip(event, 'fs11', 14)" class="i">Countries</span><span class="o">.</span><span class="i">``Russian Federation``</span><span class="o">.</span><span class="i">Indicators</span><span class="o">.</span><span class="i">``GINI index``</span> 
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs12', 15)" onmouseover="showTip(event, 'fs12', 15)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs13', 16)" onmouseover="showTip(event, 'fs13', 16)" class="i">toArray</span>
+
+<span onmouseout="hideTip(event, 'fs14', 17)" onmouseover="showTip(event, 'fs14', 17)" class="i">Chart</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs15', 18)" onmouseover="showTip(event, 'fs15', 18)" class="i">Point</span>(<span onmouseout="hideTip(event, 'fs10', 19)" onmouseover="showTip(event, 'fs10', 19)" class="i">rawData</span>)</pre>
+</td>
+</tr>
+</table>
+
+<p><img src="/Ariadne/images/chart4.png" alt="Chart" /></p>
+
+<p>The snippet downloads raw data from the World Bank on the Gini index, which measures
+income inequality. We can see that the time series contains missing data, for example there 
+are no values between years 1988 and 1993.</p>
+
+<pre><code>[|(1988, 23.8); (1993, 48.38); (1996, 46.11); (1999, 37.48); (2001, 39.6);
+  (2002, 35.7); (2003, 37.26); (2004, 37.14); (2005, 37.51); (2006, 42.13);
+  (2007, 43.71); (2008, 42.27); (2009, 40.11)|]
+</code></pre>
+
+<p>We can use Gaussian process regression model to interpolate the observed data and estimate
+Gini index in the years when it was not measured. As a first step, we need to prepare the 
+downloaded data.</p>
+
+<h2>Data preprocessing</h2>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 20)" onmouseover="showTip(event, 'fs16', 20)" class="i">years</span>, <span onmouseout="hideTip(event, 'fs17', 21)" onmouseover="showTip(event, 'fs17', 21)" class="i">values</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs18', 22)" onmouseover="showTip(event, 'fs18', 22)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 23)" onmouseover="showTip(event, 'fs19', 23)" class="i">unzip</span> <span onmouseout="hideTip(event, 'fs10', 24)" onmouseover="showTip(event, 'fs10', 24)" class="i">rawData</span>
+
+<span class="c">// inputs</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs20', 25)" onmouseover="showTip(event, 'fs20', 25)" class="i">xs</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs16', 26)" onmouseover="showTip(event, 'fs16', 26)" class="i">years</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs18', 27)" onmouseover="showTip(event, 'fs18', 27)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 28)" onmouseover="showTip(event, 'fs21', 28)" class="i">map</span> <span onmouseout="hideTip(event, 'fs22', 29)" onmouseover="showTip(event, 'fs22', 29)" class="i">float</span>   
+<span class="c">// centred outputs</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs23', 30)" onmouseover="showTip(event, 'fs23', 30)" class="i">ys</span> <span class="o">=</span> 
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs24', 31)" onmouseover="showTip(event, 'fs24', 31)" class="i">avg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs18', 32)" onmouseover="showTip(event, 'fs18', 32)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs25', 33)" onmouseover="showTip(event, 'fs25', 33)" class="i">average</span> <span onmouseout="hideTip(event, 'fs17', 34)" onmouseover="showTip(event, 'fs17', 34)" class="i">values</span>
+    <span onmouseout="hideTip(event, 'fs17', 35)" onmouseover="showTip(event, 'fs17', 35)" class="i">values</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs18', 36)" onmouseover="showTip(event, 'fs18', 36)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 37)" onmouseover="showTip(event, 'fs21', 37)" class="i">map</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs26', 38)" onmouseover="showTip(event, 'fs26', 38)" class="i">y</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 39)" onmouseover="showTip(event, 'fs26', 39)" class="i">y</span> <span class="o">-</span> <span onmouseout="hideTip(event, 'fs24', 40)" onmouseover="showTip(event, 'fs24', 40)" class="i">avg</span>)
+
+<span class="c">// Gaussian process data</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs27', 41)" onmouseover="showTip(event, 'fs27', 41)" class="i">data</span> <span class="o">=</span> [{<span class="i">Locations</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 42)" onmouseover="showTip(event, 'fs20', 42)" class="i">xs</span>; <span class="i">Observations</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs23', 43)" onmouseover="showTip(event, 'fs23', 43)" class="i">ys</span>}]</pre>
+</td>
+</tr>
+</table>
+
+<p>We formulated the data in the form expected by the Gaussian process library. General data
+for Gaussian process consist of a sequence of series measurements. 
+In our case, we have only one time series. 
+Each series of measurements contains locations of each measurement (time points in our example)
+and observed values for each location (Gini index values).
+The <code>Locations</code> and <code>Observations</code> arrays should have equal length.</p>
+
+<p>In general applications, locations and observations are not restricted to time series. 
+For example locations can represent geographical coordinates and observations might record
+rainfall at each location.</p>
+
+<h2>Covariance function</h2>
+
+<p>Covariance functions (also called kernels) are the key ingredient in using Gaussian processes. 
+They encode all
+assumptions about the form of function that we are modelling. In general, covariance represents
+some form of distance or similarity. 
+Consider two input points (locations) <span class="math">\(x_i\)</span> and <span class="math">\(x_j\)</span> with corresponding observed 
+values <span class="math">\(y_i\)</span> and <span class="math">\(y_j\)</span>. If the inputs <span class="math">\(x_i\)</span> and <span class="math">\(x_j\)</span> are close to each other,  we 
+generally expect that 
+ <span class="math">\(y_i\)</span> and <span class="math">\(y_j\)</span> will be close as well. This measure of similarity is embedded in the covariance
+ function.</p>
+
+<p>Ariadne currently contains implementation of the most commonly used covariance function, 
+the squared exponential kernel. For more information see <a href="covarianceFunctions.html">Covariance functions</a>.
+The following snippet creates the squared exponential covariance function.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="c">// hyperparameters</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs28', 44)" onmouseover="showTip(event, 'fs28', 44)" class="i">lengthscale</span> <span class="o">=</span> <span class="n">3.0</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs29', 45)" onmouseover="showTip(event, 'fs29', 45)" class="i">signalVariance</span> <span class="o">=</span> <span class="n">15.0</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs30', 46)" onmouseover="showTip(event, 'fs30', 46)" class="i">noiseVariance</span> <span class="o">=</span> <span class="n">1.0</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs31', 47)" onmouseover="showTip(event, 'fs31', 47)" class="i">sqExp</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs32', 48)" onmouseover="showTip(event, 'fs32', 48)" class="i">SquaredExp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 49)" onmouseover="showTip(event, 'fs33', 49)" class="i">SquaredExp</span>(<span onmouseout="hideTip(event, 'fs28', 50)" onmouseover="showTip(event, 'fs28', 50)" class="i">lengthscale</span>, <span onmouseout="hideTip(event, 'fs29', 51)" onmouseover="showTip(event, 'fs29', 51)" class="i">signalVariance</span>, <span onmouseout="hideTip(event, 'fs30', 52)" onmouseover="showTip(event, 'fs30', 52)" class="i">noiseVariance</span>)</pre>
+</td>
+</tr>
+</table>
+
+<p>The hyperparameters regulate specific behaviour of the squared exponential kernel. For details see
+the <a href="covarianceFunctions.html">Covariance functions</a> section. Details on how to select
+values for hyperparameters are in the <a href="optimization.html">Optimization</a> section of this website.</p>
+
+<h2>Gaussian process regression</h2>
+
+<p>There are two ways how to create a Gaussian process model. The first one uses directly 
+the squared exponential
+kernel that we created in the previous snippet.
+The second option is to create Gaussian process model 'from scratch' by specifying a
+covariance function, prior mean and optional noise variance. The library currently implements
+only zero prior mean.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="c">// First option how to create a Gaussian process model</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 53)" onmouseover="showTip(event, 'fs34', 53)" class="i">gp</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs31', 54)" onmouseover="showTip(event, 'fs31', 54)" class="i">sqExp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 55)" onmouseover="showTip(event, 'fs35', 55)" class="i">GaussianProcess</span>()
+
+<span class="c">// Second option how to create a Gaussian process model</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 56)" onmouseover="showTip(event, 'fs36', 56)" class="i">covFun</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs31', 57)" onmouseover="showTip(event, 'fs31', 57)" class="i">sqExp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs37', 58)" onmouseover="showTip(event, 'fs37', 58)" class="i">Kernel</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs38', 59)" onmouseover="showTip(event, 'fs38', 59)" class="i">gp1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs39', 60)" onmouseover="showTip(event, 'fs39', 60)" class="i">GaussianProcess</span>(<span onmouseout="hideTip(event, 'fs36', 61)" onmouseover="showTip(event, 'fs36', 61)" class="i">covFun</span>, <span onmouseout="hideTip(event, 'fs40', 62)" onmouseover="showTip(event, 'fs40', 62)" class="i">ZeroMean</span>, <span onmouseout="hideTip(event, 'fs41', 63)" onmouseover="showTip(event, 'fs41', 63)" class="i">Some</span> <span onmouseout="hideTip(event, 'fs30', 64)" onmouseover="showTip(event, 'fs30', 64)" class="i">noiseVariance</span>)</pre>
+</td>
+</tr>
+</table>
+
+<p>Now that we created a Gaussian process, we can use it to compute regression function.
+Please note that current implementation of inference in Gaussian processes is exact
+and therefore requires <span class="math">\(\mathcal{O} (N^3)\)</span> time, where <span class="math">\(N\)</span> is the number of data points.</p>
+
+<p>We can compute log likelihood to see how well the Gaussian process model 
+fits our World bank data. The log likelihood may be used to compare different
+models.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs42', 65)" onmouseover="showTip(event, 'fs42', 65)" class="i">loglik</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs34', 66)" onmouseover="showTip(event, 'fs34', 66)" class="i">gp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs43', 67)" onmouseover="showTip(event, 'fs43', 67)" class="i">LogLikelihood</span> <span onmouseout="hideTip(event, 'fs27', 68)" onmouseover="showTip(event, 'fs27', 68)" class="i">data</span></pre>
+</td>
+</tr>
+</table>
+
+<pre><code>-45.09576717
+</code></pre>
+
+<p>We can also use Gaussian process to estimate values of the Gini index in 
+years where there are no data. The <code>Predict</code> function gives us the mean 
+estimate for each time location and variance of the estimate.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs44', 69)" onmouseover="showTip(event, 'fs44', 69)" class="i">allYears</span> <span class="o">=</span> [| <span class="n">1985.0</span> <span class="o">..</span> <span class="n">2015.0</span> |]
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs45', 70)" onmouseover="showTip(event, 'fs45', 70)" class="i">predictValues</span>, <span onmouseout="hideTip(event, 'fs46', 71)" onmouseover="showTip(event, 'fs46', 71)" class="i">predictVariance</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs44', 72)" onmouseover="showTip(event, 'fs44', 72)" class="i">allYears</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs34', 73)" onmouseover="showTip(event, 'fs34', 73)" class="i">gp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs47', 74)" onmouseover="showTip(event, 'fs47', 74)" class="i">Predict</span> <span onmouseout="hideTip(event, 'fs27', 75)" onmouseover="showTip(event, 'fs27', 75)" class="i">data</span>
+
+<span onmouseout="hideTip(event, 'fs18', 76)" onmouseover="showTip(event, 'fs18', 76)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs48', 77)" onmouseover="showTip(event, 'fs48', 77)" class="i">zip3</span> <span onmouseout="hideTip(event, 'fs44', 78)" onmouseover="showTip(event, 'fs44', 78)" class="i">allYears</span> <span onmouseout="hideTip(event, 'fs45', 79)" onmouseover="showTip(event, 'fs45', 79)" class="i">predictValues</span> <span onmouseout="hideTip(event, 'fs46', 80)" onmouseover="showTip(event, 'fs46', 80)" class="i">predictVariance</span>
+<span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs18', 81)" onmouseover="showTip(event, 'fs18', 81)" class="i">Array</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs49', 82)" onmouseover="showTip(event, 'fs49', 82)" class="i">iteri</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs50', 83)" onmouseover="showTip(event, 'fs50', 83)" class="i">i</span> (<span onmouseout="hideTip(event, 'fs51', 84)" onmouseover="showTip(event, 'fs51', 84)" class="i">year</span>, <span onmouseout="hideTip(event, 'fs52', 85)" onmouseover="showTip(event, 'fs52', 85)" class="i">gini</span>, <span onmouseout="hideTip(event, 'fs53', 86)" onmouseover="showTip(event, 'fs53', 86)" class="i">var</span>) <span class="k">-&gt;</span> 
+    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs50', 87)" onmouseover="showTip(event, 'fs50', 87)" class="i">i</span> <span class="o">&lt;</span> <span class="n">5</span> <span class="k">then</span>
+        <span onmouseout="hideTip(event, 'fs54', 88)" onmouseover="showTip(event, 'fs54', 88)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">.</span><span class="s">0</span><span class="s">f</span><span class="s"> </span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">.</span><span class="s">3</span><span class="s">f</span><span class="s"> </span><span class="s">(</span><span class="s">+</span><span class="s">/</span><span class="s">-</span><span class="s"> </span><span class="s">%</span><span class="s">.</span><span class="s">3</span><span class="s">f</span><span class="s">)</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs51', 89)" onmouseover="showTip(event, 'fs51', 89)" class="i">year</span> <span onmouseout="hideTip(event, 'fs52', 90)" onmouseover="showTip(event, 'fs52', 90)" class="i">gini</span> (<span onmouseout="hideTip(event, 'fs55', 91)" onmouseover="showTip(event, 'fs55', 91)" class="i">sqrt</span> <span onmouseout="hideTip(event, 'fs53', 92)" onmouseover="showTip(event, 'fs53', 92)" class="i">var</span>)) </pre>
+</td>
+</tr>
+</table>
+
+<p>We can print the predicted values for each year together with their 
+standard deviations.</p>
+
+<pre><code>1985 : -10.091 (+/- 3.250)
+1986 : -13.017 (+/- 2.585)
+1987 : -14.740 (+/- 1.808)
+1988 : -14.381 (+/- 1.390)
+1989 : -11.567 (+/- 1.655)
+
+</code></pre>
+
+<p>To display the full posterior regression function, we can also automatically 
+plot the Gaussian process using <a href="http://fsharp.github.io/FSharp.Charting/">F# Charting</a>. 
+There are two functions for Gaussian process charts included in the library. 
+There is a basic <code>plot</code> function, which uses Gaussian process to interpolate observed values.
+The <code>plotRange</code> function extrapolates the Gaussian process over a specified 
+range of values. We can use it to draw a graph of estimated Gini index values between years
+1995 to 2015.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span onmouseout="hideTip(event, 'fs34', 93)" onmouseover="showTip(event, 'fs34', 93)" class="i">gp</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs56', 94)" onmouseover="showTip(event, 'fs56', 94)" class="i">plotRange</span> (<span class="n">1985.0</span>, <span class="n">2015.0</span>) <span onmouseout="hideTip(event, 'fs27', 95)" onmouseover="showTip(event, 'fs27', 95)" class="i">data</span></pre>
+</td>
+</tr>
+</table>
+
+<p><img src="/Ariadne/images/chart5.png" alt="Chart" /></p>
+
+<p>Continue to <a href="covarianceFunctions.html">Covariance functions</a> to find out more about the
+squared exponential covariance. <a href="optimization.html">Optimization</a> provides an overview of 
+how to fit hyperparameters of covariance functions (lengthscale, signal variance etc).</p>
+
+<div class="tip" id="fs1">namespace Ariadne</div>
+<div class="tip" id="fs2">module GaussianProcess<br /><br />from Ariadne</div>
+<div class="tip" id="fs3">module Kernels<br /><br />from Ariadne</div>
+<div class="tip" id="fs4">namespace FSharp</div>
+<div class="tip" id="fs5">namespace FSharp.Data</div>
+<div class="tip" id="fs6">namespace FSharp.Charting</div>
+<div class="tip" id="fs7">val wb : WorldBankData.ServiceTypes.WorldBankDataService<br /><br />Full name: Tutorial.wb</div>
+<div class="tip" id="fs8">type WorldBankData =<br />&#160;&#160;static member GetDataContext : unit -&gt; WorldBankDataService<br />&#160;&#160;nested type ServiceTypes<br /><br />Full name: FSharp.Data.WorldBankData<br /><em><br /><br />&lt;summary&gt;Typed representation of WorldBank data. See http://www.worldbank.org for terms and conditions.&lt;/summary&gt;</em></div>
+<div class="tip" id="fs9">WorldBankData.GetDataContext() : WorldBankData.ServiceTypes.WorldBankDataService</div>
+<div class="tip" id="fs10">val rawData : (int * float) []<br /><br />Full name: Tutorial.rawData</div>
+<div class="tip" id="fs11">property WorldBankData.ServiceTypes.WorldBankDataService.Countries: WorldBankData.ServiceTypes.Countries</div>
+<div class="tip" id="fs12">module Seq<br /><br />from Microsoft.FSharp.Collections</div>
+<div class="tip" id="fs13">val toArray : source:seq&lt;&#39;T&gt; -&gt; &#39;T []<br /><br />Full name: Microsoft.FSharp.Collections.Seq.toArray</div>
+<div class="tip" id="fs14">type Chart =<br />&#160;&#160;static member Area : data:seq&lt;#value&gt; * ?Name:string * ?Title:string * ?Labels:#seq&lt;string&gt; * ?Color:Color * ?XTitle:string * ?YTitle:string -&gt; GenericChart<br />&#160;&#160;static member Area : data:seq&lt;#key * #value&gt; * ?Name:string * ?Title:string * ?Labels:#seq&lt;string&gt; * ?Color:Color * ?XTitle:string * ?YTitle:string -&gt; GenericChart<br />&#160;&#160;static member Bar : data:seq&lt;#value&gt; * ?Name:string * ?Title:string * ?Labels:#seq&lt;string&gt; * ?Color:Color * ?XTitle:string * ?YTitle:string -&gt; GenericChart<br />&#160;&#160;static member Bar : data:seq&lt;#key * #value&gt; * ?Name:string * ?Title:string * ?Labels:#seq&lt;string&gt; * ?Color:Color * ?XTitle:string * ?YTitle:string -&gt; GenericChart<br />&#160;&#160;static member BoxPlotFromData : data:seq&lt;#key * #seq&lt;&#39;a2&gt;&gt; * ?Name:string * ?Title:string * ?Color:Color * ?XTitle:string * ?YTitle:string * ?Percentile:int * ?ShowAverage:bool * ?ShowMedian:bool * ?ShowUnusualValues:bool * ?WhiskerPercentile:int -&gt; GenericChart (requires &#39;a2 :&gt; value)<br />&#160;&#160;static member BoxPlotFromStatistics : data:seq&lt;#key * #value * #value * #value * #value * #value * #value&gt; * ?Name:string * ?Title:string * ?Labels:#seq&lt;string&gt; * ?Color:Color * ?XTitle:string * ?YTitle:string * ?Percentile:int * ?ShowAverage:bool * ?ShowMedian:bool * ?ShowUnusualValues:bool * ?WhiskerPercentile:int -&gt; GenericChart<br />&#160;&#160;static member Bubble : data:seq&lt;#value * #value&gt; * ?Name:string * ?Title:string * ?Labels:#seq&lt;string&gt; * ?Color:Color * ?XTitle:string * ?YTitle:string * ?BubbleMaxSize:int * ?BubbleMinSize:int * ?BubbleScaleMax:float * ?BubbleScaleMin:float * ?UseSizeForLabel:bool -&gt; GenericChart<br />&#160;&#160;static member Bubble : data:seq&lt;#key * #value * #value&gt; * ?Name:string * ?Title:string * ?Labels:#seq&lt;string&gt; * ?Color:Color * ?XTitle:string * ?YTitle:string * ?BubbleMaxSize:int * ?BubbleMinSize:int * ?BubbleScaleMax:float * ?BubbleScaleMin:float * ?UseSizeForLabel:bool -&gt; GenericChart<br />&#160;&#160;static member Candlestick : data:seq&lt;#value * #value * #value * #value&gt; * ?Name:string * ?Title:string * ?Labels:#seq&lt;string&gt; * ?Color:Color * ?XTitle:string * ?YTitle:string -&gt; CandlestickChart<br />&#160;&#160;static member Candlestick : data:seq&lt;#key * #value * #value * #value * #value&gt; * ?Name:string * ?Title:string * ?Labels:#seq&lt;string&gt; * ?Color:Color * ?XTitle:string * ?YTitle:string -&gt; CandlestickChart<br />&#160;&#160;...<br /><br />Full name: FSharp.Charting.Chart</div>
+<div class="tip" id="fs15">static member Chart.Point : data:seq&lt;#value&gt; * ?Name:string * ?Title:string * ?Labels:#seq&lt;string&gt; * ?Color:System.Drawing.Color * ?XTitle:string * ?YTitle:string * ?MarkerColor:System.Drawing.Color * ?MarkerSize:int -&gt; ChartTypes.GenericChart<br />static member Chart.Point : data:seq&lt;#key * #value&gt; * ?Name:string * ?Title:string * ?Labels:#seq&lt;string&gt; * ?Color:System.Drawing.Color * ?XTitle:string * ?YTitle:string * ?MarkerColor:System.Drawing.Color * ?MarkerSize:int -&gt; ChartTypes.GenericChart</div>
+<div class="tip" id="fs16">val years : int []<br /><br />Full name: Tutorial.years</div>
+<div class="tip" id="fs17">val values : float []<br /><br />Full name: Tutorial.values</div>
+<div class="tip" id="fs18">module Array<br /><br />from Microsoft.FSharp.Collections</div>
+<div class="tip" id="fs19">val unzip : array:(&#39;T1 * &#39;T2) [] -&gt; &#39;T1 [] * &#39;T2 []<br /><br />Full name: Microsoft.FSharp.Collections.Array.unzip</div>
+<div class="tip" id="fs20">val xs : float []<br /><br />Full name: Tutorial.xs</div>
+<div class="tip" id="fs21">val map : mapping:(&#39;T -&gt; &#39;U) -&gt; array:&#39;T [] -&gt; &#39;U []<br /><br />Full name: Microsoft.FSharp.Collections.Array.map</div>
+<div class="tip" id="fs22">Multiple items<br />val float : value:&#39;T -&gt; float (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.float<br /><br />--------------------<br />type float = System.Double<br /><br />Full name: Microsoft.FSharp.Core.float<br /><br />--------------------<br />type float&lt;&#39;Measure&gt; = float<br /><br />Full name: Microsoft.FSharp.Core.float&lt;_&gt;</div>
+<div class="tip" id="fs23">val ys : float []<br /><br />Full name: Tutorial.ys</div>
+<div class="tip" id="fs24">val avg : float</div>
+<div class="tip" id="fs25">val average : array:&#39;T [] -&gt; &#39;T (requires member ( + ) and member DivideByInt and member get_Zero)<br /><br />Full name: Microsoft.FSharp.Collections.Array.average</div>
+<div class="tip" id="fs26">val y : float</div>
+<div class="tip" id="fs27">val data : Observation&lt;float&gt; list<br /><br />Full name: Tutorial.data</div>
+<div class="tip" id="fs28">val lengthscale : float<br /><br />Full name: Tutorial.lengthscale</div>
+<div class="tip" id="fs29">val signalVariance : float<br /><br />Full name: Tutorial.signalVariance</div>
+<div class="tip" id="fs30">val noiseVariance : float<br /><br />Full name: Tutorial.noiseVariance</div>
+<div class="tip" id="fs31">val sqExp : SquaredExp.SquaredExp<br /><br />Full name: Tutorial.sqExp</div>
+<div class="tip" id="fs32">module SquaredExp<br /><br />from Ariadne.Kernels</div>
+<div class="tip" id="fs33">Multiple items<br />type SquaredExp =<br />&#160;&#160;new : lengthscale:float * signalVariance:float * noiseVariance:float -&gt; SquaredExp<br />&#160;&#160;member GaussianProcess : unit -&gt; GaussianProcess&lt;float&gt;<br />&#160;&#160;member Kernel : x1:float * x2:float -&gt; float<br />&#160;&#160;override ToString : unit -&gt; string<br />&#160;&#160;member Lengthscale : float<br />&#160;&#160;member NoiseVariance : float<br />&#160;&#160;member Parameters : float []<br />&#160;&#160;member SignalVariance : float<br /><br />Full name: Ariadne.Kernels.SquaredExp.SquaredExp<br /><br />--------------------<br />new : lengthscale:float * signalVariance:float * noiseVariance:float -&gt; SquaredExp.SquaredExp</div>
+<div class="tip" id="fs34">val gp : GaussianProcess&lt;float&gt;<br /><br />Full name: Tutorial.gp</div>
+<div class="tip" id="fs35">member SquaredExp.SquaredExp.GaussianProcess : unit -&gt; GaussianProcess&lt;float&gt;</div>
+<div class="tip" id="fs36">val covFun : (float * float -&gt; float)<br /><br />Full name: Tutorial.covFun</div>
+<div class="tip" id="fs37">member SquaredExp.SquaredExp.Kernel : x1:float * x2:float -&gt; float</div>
+<div class="tip" id="fs38">val gp1 : GaussianProcess&lt;float&gt;<br /><br />Full name: Tutorial.gp1</div>
+<div class="tip" id="fs39">Multiple items<br />type GaussianProcess&lt;&#39;T&gt; =<br />&#160;&#160;new : covariance:Kernel&lt;&#39;T&gt; * noiseVariance:float option -&gt; GaussianProcess&lt;&#39;T&gt;<br />&#160;&#160;new : covariance:Kernel&lt;&#39;T&gt; * meanFunction:MeanFunction * noiseVariance:float option -&gt; GaussianProcess&lt;&#39;T&gt;<br />&#160;&#160;member LogLikelihood : data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; float<br />&#160;&#160;member PosteriorGaussianProcess : data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; newLocations:&#39;T [] -&gt; Vector&lt;float&gt; * Matrix&lt;float&gt;<br />&#160;&#160;member Predict : data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; newLocations:&#39;T [] -&gt; float [] * float []<br />&#160;&#160;member PredictiveLogLikelihood : data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; x:Observation&lt;&#39;T&gt; -&gt; float<br />&#160;&#160;member Covariance : Kernel&lt;&#39;T&gt;<br />&#160;&#160;member Mean : MeanFunction<br />&#160;&#160;member NoiseVariance : float option<br /><br />Full name: Ariadne.GaussianProcess.GaussianProcess&lt;_&gt;<br /><br />--------------------<br />new : covariance:Kernel&lt;&#39;T&gt; * noiseVariance:float option -&gt; GaussianProcess&lt;&#39;T&gt;<br />new : covariance:Kernel&lt;&#39;T&gt; * meanFunction:MeanFunction * noiseVariance:float option -&gt; GaussianProcess&lt;&#39;T&gt;</div>
+<div class="tip" id="fs40">union case MeanFunction.ZeroMean: MeanFunction</div>
+<div class="tip" id="fs41">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs42">val loglik : float<br /><br />Full name: Tutorial.loglik</div>
+<div class="tip" id="fs43">member GaussianProcess.LogLikelihood : data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; float</div>
+<div class="tip" id="fs44">val allYears : float []<br /><br />Full name: Tutorial.allYears</div>
+<div class="tip" id="fs45">val predictValues : float []<br /><br />Full name: Tutorial.predictValues</div>
+<div class="tip" id="fs46">val predictVariance : float []<br /><br />Full name: Tutorial.predictVariance</div>
+<div class="tip" id="fs47">member GaussianProcess.Predict : data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; newLocations:&#39;T [] -&gt; float [] * float []</div>
+<div class="tip" id="fs48">val zip3 : array1:&#39;T1 [] -&gt; array2:&#39;T2 [] -&gt; array3:&#39;T3 [] -&gt; (&#39;T1 * &#39;T2 * &#39;T3) []<br /><br />Full name: Microsoft.FSharp.Collections.Array.zip3</div>
+<div class="tip" id="fs49">val iteri : action:(int -&gt; &#39;T -&gt; unit) -&gt; array:&#39;T [] -&gt; unit<br /><br />Full name: Microsoft.FSharp.Collections.Array.iteri</div>
+<div class="tip" id="fs50">val i : int</div>
+<div class="tip" id="fs51">val year : float</div>
+<div class="tip" id="fs52">val gini : float</div>
+<div class="tip" id="fs53">val var : float</div>
+<div class="tip" id="fs54">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs55">val sqrt : value:&#39;T -&gt; &#39;U (requires member Sqrt)<br /><br />Full name: Microsoft.FSharp.Core.Operators.sqrt</div>
+<div class="tip" id="fs56">val plotRange : timeMin:float * timeMax:float -&gt; data:seq&lt;Observation&lt;float&gt;&gt; -&gt; gp:GaussianProcess&lt;float&gt; -&gt; ChartTypes.GenericChart<br /><br />Full name: Ariadne.GaussianProcess.plotRange</div>
+
+        </div>
+        <div class="span3">
+          <img src="/Ariadne/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">Ariadne</li>
+            <li><a href="/Ariadne/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/Ariadne">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/Ariadne/tutorial.html">Tutorial</a></li>
+            <li><a href="/Ariadne/covarianceFunctions.html">Covariance functions</a></li>
+            <li><a href="/Ariadne/optimization.html">Optimization</a></li>
+            <li><a href="/Ariadne/howto.html">Quick how-to</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/Ariadne/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/evelinag/Ariadne"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>

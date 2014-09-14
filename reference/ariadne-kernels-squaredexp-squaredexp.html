@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>SquaredExp - Ariadne</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content="Evelina Gabasova"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <link type="text/css" rel="stylesheet" href="/Ariadne/content/style.css" />
+    <script type="text/javascript" src="/Ariadne/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/evelinag/Ariadne">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/Ariadne/index.html">Ariadne</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>SquaredExp</h1>
+<div class="xmldoc">
+<p>Isotropic squared exponential covariance function
+also known as the Gaussian kernel or RBF kernel</p>
+
+<p>k(x,y) = σ² <em> exp(-1/(2</em>lengthscale²) * (x - y)²) + δ[x=y] σ²_{noise}</p>
+
+<p>σ² is the signal variance
+σ²_{noise} is the noise variance</p>
+</div>
+  <h3>Constructors</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Constructor</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '26', 26)" onmouseover="showTip(event, '26', 26)">
+            new(...)
+          </code>
+          <div class="tip" id="26">
+            <strong>Signature:</strong> (lengthscale:float * signalVariance:float * noiseVariance:float) -&gt; SquaredExp<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/Kernels.fs#L20-20" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '29', 29)" onmouseover="showTip(event, '29', 29)">
+            GaussianProcess()
+          </code>
+          <div class="tip" id="29">
+            <strong>Signature:</strong> unit -&gt; GaussianProcess&lt;float&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/Kernels.fs#L44-44" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Creates Gaussian process with squared exponential kernel function
+and zero mean.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
+            Kernel(x1, x2)
+          </code>
+          <div class="tip" id="41">
+            <strong>Signature:</strong> (x1:float * x2:float) -&gt; float<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/Kernels.fs#L38-38" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Construct a kernel function that can be used in a Gaussian process</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
+            Lengthscale
+          </code>
+          <div class="tip" id="42">
+            <strong>Signature:</strong> float<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/Kernels.fs#L24-24" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '43', 43)" onmouseover="showTip(event, '43', 43)">
+            NoiseVariance
+          </code>
+          <div class="tip" id="43">
+            <strong>Signature:</strong> float<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/Kernels.fs#L26-26" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '44', 44)" onmouseover="showTip(event, '44', 44)">
+            Parameters
+          </code>
+          <div class="tip" id="44">
+            <strong>Signature:</strong> float []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/Kernels.fs#L28-28" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '45', 45)" onmouseover="showTip(event, '45', 45)">
+            SignalVariance
+          </code>
+          <div class="tip" id="45">
+            <strong>Signature:</strong> float<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/Kernels.fs#L25-25" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <img src="/Ariadne/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">Ariadne</li>
+            <li><a href="/Ariadne/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/Ariadne">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/Ariadne/tutorial.html">Tutorial</a></li>
+            <li><a href="/Ariadne/covarianceFunctions.html">Covariance functions</a></li>
+            <li><a href="/Ariadne/optimization.html">Optimization</a></li>
+            <li><a href="/Ariadne/howto.html">Quick how-to</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/Ariadne/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/evelinag/Ariadne"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>

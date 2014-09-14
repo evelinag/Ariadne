@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>GaussianProcess<'T> - Ariadne</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content="Evelina Gabasova"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <link type="text/css" rel="stylesheet" href="/Ariadne/content/style.css" />
+    <script type="text/javascript" src="/Ariadne/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/evelinag/Ariadne">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/Ariadne/index.html">Ariadne</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>GaussianProcess<'T></h1>
+<div class="xmldoc">
+</div>
+  <h3>Constructors</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Constructor</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '24', 24)" onmouseover="showTip(event, '24', 24)">
+            new(covariance, noiseVariance)
+          </code>
+          <div class="tip" id="24">
+            <strong>Signature:</strong> (covariance:Kernel&lt;&#39;T&gt; * noiseVariance:float option) -&gt; GaussianProcess&lt;&#39;T&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/GaussianProcess.fs#L83-83" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '25', 25)" onmouseover="showTip(event, '25', 25)">
+            new(...)
+          </code>
+          <div class="tip" id="25">
+            <strong>Signature:</strong> (covariance:Kernel&lt;&#39;T&gt; * meanFunction:MeanFunction * noiseVariance:float option) -&gt; GaussianProcess&lt;&#39;T&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/GaussianProcess.fs#L77-77" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '27', 27)" onmouseover="showTip(event, '27', 27)">
+            Covariance
+          </code>
+          <div class="tip" id="27">
+            <strong>Signature:</strong> Kernel&lt;&#39;T&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/GaussianProcess.fs#L80-80" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '30', 30)" onmouseover="showTip(event, '30', 30)">
+            LogLikelihood(data)
+          </code>
+          <div class="tip" id="30">
+            <strong>Signature:</strong> data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; float&lt;MeasureOne&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/GaussianProcess.fs#L119-119" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Computes posterior log likelihood of a Gaussian process
+given a set of observed data</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '31', 31)" onmouseover="showTip(event, '31', 31)">
+            Mean
+          </code>
+          <div class="tip" id="31">
+            <strong>Signature:</strong> MeanFunction<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/GaussianProcess.fs#L79-79" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '32', 32)" onmouseover="showTip(event, '32', 32)">
+            NoiseVariance
+          </code>
+          <div class="tip" id="32">
+            <strong>Signature:</strong> float option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/GaussianProcess.fs#L81-81" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '33', 33)" onmouseover="showTip(event, '33', 33)">
+            PosteriorGaussianProcess(...)
+          </code>
+          <div class="tip" id="33">
+            <strong>Signature:</strong> data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; (newLocations:&#39;T []) -&gt; Vector&lt;float&gt; * Matrix&lt;float&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/GaussianProcess.fs#L89-89" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Computes mean vector and covariance matrix of a posterior Gaussian
+process given a set of observed data points
+and a set of new time points without observed values.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '34', 34)" onmouseover="showTip(event, '34', 34)">
+            Predict(data newLocations)
+          </code>
+          <div class="tip" id="34">
+            <strong>Signature:</strong> data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; (newLocations:&#39;T []) -&gt; float [] * float []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/GaussianProcess.fs#L147-147" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Predictive distribution of a Gaussian process given a set of observations</p>
+
+<h2>Parameters</h2>
+
+<ul>
+<li>data - observed data</li>
+<li>timepoints - locations for prediction</li>
+</ul>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '35', 35)" onmouseover="showTip(event, '35', 35)">
+            PredictiveLogLikelihood(data x)
+          </code>
+          <div class="tip" id="35">
+            <strong>Signature:</strong> data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; x:Observation&lt;&#39;T&gt; -&gt; float<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/evelinag/Ariadne/tree/master/src/Ariadne/GaussianProcess.fs#L135-135" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Predictive log likelihood of a Gaussian process</p>
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <img src="/Ariadne/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">Ariadne</li>
+            <li><a href="/Ariadne/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/Ariadne">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne/blob/master/LICENSE">License</a></li>
+            <li><a href="http://github.com/evelinag/Ariadne/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/Ariadne/tutorial.html">Tutorial</a></li>
+            <li><a href="/Ariadne/covarianceFunctions.html">Covariance functions</a></li>
+            <li><a href="/Ariadne/optimization.html">Optimization</a></li>
+            <li><a href="/Ariadne/howto.html">Quick how-to</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/Ariadne/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/evelinag/Ariadne"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>
