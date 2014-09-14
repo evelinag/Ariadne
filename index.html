@@ -27,6 +27,10 @@
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
           <li><a href="http://fsharp.org">fsharp.org</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Data"><img height="16" width="16" src="http://fsharp.org/images/thumbs/FSharp.Data.png" /> F# Data</a></li>
+            <li><a href="http://bluemountaincapital.github.io/Deedle"><img height="16" width="16" src="http://fsharp.org/images/thumbs/Deedle.png" /> Deedle</a></li>
+            <li><a href="http://bluemountaincapital.github.io/FSharpRProvider"><img height=" 16" width="16" src="http://fsharp.org/images/thumbs/FSharpRProvider.png" /> R Provider</a></li>
+            <li><a href="http://fsharp.github.io/FSharp.Charting/"><img height="16" width="16" src="http://fsharp.org/images/thumbs/FSharp.Charting.png" /> F# Charting</a></li>
           <li><a href="http://github.com/evelinag/Ariadne">github page</a></li>
         </ul>
         <h3 class="muted"><a href="/Ariadne/index.html">Ariadne</a></h3>
@@ -40,6 +44,10 @@
 <p>Ariadne is an F# library for fitting Gaussian process regression models.</p>
 
 <p><img src="img/gp.png" alt="Example GP" /></p>
+
+<h2>How to get Ariadne</h2>
+
+<p>Ariadne is available from <a href="https://nuget.org/packages/Ariadne">NuGet</a>.</p>
 
 <h2>What are Gaussian processes?</h2>
 
@@ -73,19 +81,6 @@ there are no observations, and shrinks when a value is observed.</p>
 <p>If you want to learn more about Gaussian processes, the best resource is the
 <a href="http://www.gaussianprocess.org/gpml/">Gaussian Processes for Machine Learning</a> book.</p>
 
-<h2>How to get Ariadne</h2>
-
-<div class="row">
-  <div class="span1"></div>
-  <div class="span6">
-    <div class="well well-small" id="nuget">
-      The Ariadne library can be <a href="https://nuget.org/packages/Ariadne">installed from NuGet</a>:
-      <pre>PM> Install-Package Ariadne</pre>
-    </div>
-  </div>
-  <div class="span1"></div>
-</div> 
-
 <h2>Samples &amp; documentation</h2>
 
 <ul>
@@ -93,6 +88,7 @@ there are no observations, and shrinks when a value is observed.</p>
 <li><p><a href="covarianceFunctions.html">Covariance functions</a> gives an overview of implemented covariance functions.</p></li>
 <li><p><a href="optimization.html">Optimization</a> shows implemented methods which can be used to fit hyperparameters 
 of Gaussican processes.</p></li>
+<li><p><a href="howto.html">Quick how-to</a> is a very brief overview of functions available in Ariadne.</p></li>
 <li><p><a href="reference/index.html">API Reference</a> contains automatically generated documentation for all types, modules
 and functions in the library.</p></li>
 </ul>
