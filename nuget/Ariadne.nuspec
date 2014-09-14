@@ -5,14 +5,14 @@
     <version>@build.number@</version>
     <authors>@authors@</authors>
     <owners>@authors@</owners>
-    <licenseUrl>http://github.com/fsprojects/Ariadne/blob/master/LICENSE.txt</licenseUrl>
-    <projectUrl>http://fsprojects.github.com/Ariadne</projectUrl>
-    <iconUrl>https://raw.github.com/fsharp/Ariadne/master/nuget/logo.png</iconUrl>
+    <licenseUrl>http://github.com/evelinag/Ariadne/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>http://evelinag.github.com/Ariadne</projectUrl>
+    <iconUrl>https://raw.github.com/evelinag/Ariadne/master/nuget/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>@summary@</summary>
     <description>@description@</description>
     <releaseNotes>@releaseNotes@</releaseNotes>
-    <copyright>Copyright 2013</copyright>
+    <copyright>Copyright 2014</copyright>
     <tags>@tags@</tags>
     <dependencies />
   </metadata>
