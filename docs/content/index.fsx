@@ -10,6 +10,11 @@ Ariadne: F# library for Gaussian process regression
 Ariadne is an F# library for fitting Gaussian process regression models.
 
 ![Example GP](img/gp.png) 
+
+How to get Ariadne
+--------------------------
+
+Ariadne is available from [NuGet](https://nuget.org/packages/Ariadne).
  
 What are Gaussian processes?
 -------------------------------------
@@ -43,21 +48,6 @@ there are no observations, and shrinks when a value is observed.
 If you want to learn more about Gaussian processes, the best resource is the
 [Gaussian Processes for Machine Learning](http://www.gaussianprocess.org/gpml/) book.
 
-How to get Ariadne
---------------------------
-
-<div class="row">
-  <div class="span1"></div>
-  <div class="span6">
-    <div class="well well-small" id="nuget">
-      The Ariadne library can be <a href="https://nuget.org/packages/Ariadne">installed from NuGet</a>:
-      <pre>PM> Install-Package Ariadne</pre>
-    </div>
-  </div>
-  <div class="span1"></div>
-</div> 
-
-
 Samples & documentation
 -----------------------
 
@@ -67,6 +57,8 @@ Samples & documentation
 
  * [Optimization](optimization.html) shows implemented methods which can be used to fit hyperparameters 
  of Gaussican processes.
+
+ * [Quick how-to](howto.html) is a very brief overview of functions available in Ariadne.
 
  * [API Reference](reference/index.html) contains automatically generated documentation for all types, modules
    and functions in the library. 
