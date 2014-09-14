@@ -1,11 +1,8 @@
 Ariadne: F# library for Gaussian processes
 =======================
 
-![]
-
 Ariadne is an F# library for Gaussian process regression. More information
 is available in the [documentation](http://evelinag.github.io/Ariadne).
-
 
 
 
