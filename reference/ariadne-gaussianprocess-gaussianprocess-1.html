@@ -53,10 +53,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '27', 27)" onmouseover="showTip(event, '27', 27)">
+          <code onmouseout="hideTip(event, '25', 25)" onmouseover="showTip(event, '25', 25)">
             new(covariance, noiseVariance)
           </code>
-          <div class="tip" id="27">
+          <div class="tip" id="25">
             <strong>Signature:</strong> (covariance:Kernel&lt;&#39;T&gt; * noiseVariance:float option) -&gt; GaussianProcess&lt;&#39;T&gt;<br />
                       </div>
         </td>
@@ -71,10 +71,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '28', 28)" onmouseover="showTip(event, '28', 28)">
+          <code onmouseout="hideTip(event, '26', 26)" onmouseover="showTip(event, '26', 26)">
             new(...)
           </code>
-          <div class="tip" id="28">
+          <div class="tip" id="26">
             <strong>Signature:</strong> (covariance:Kernel&lt;&#39;T&gt; * meanFunction:MeanFunction * noiseVariance:float option) -&gt; GaussianProcess&lt;&#39;T&gt;<br />
                       </div>
         </td>
@@ -97,10 +97,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '33', 33)" onmouseover="showTip(event, '33', 33)">
+          <code onmouseout="hideTip(event, '27', 27)" onmouseover="showTip(event, '27', 27)">
             Covariance
           </code>
-          <div class="tip" id="33">
+          <div class="tip" id="27">
             <strong>Signature:</strong> Kernel&lt;&#39;T&gt;<br />
                       </div>
         </td>
@@ -115,10 +115,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '34', 34)" onmouseover="showTip(event, '34', 34)">
+          <code onmouseout="hideTip(event, '28', 28)" onmouseover="showTip(event, '28', 28)">
             LogLikelihood(data)
           </code>
-          <div class="tip" id="34">
+          <div class="tip" id="28">
             <strong>Signature:</strong> data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; float&lt;MeasureOne&gt;<br />
                       </div>
         </td>
@@ -135,10 +135,10 @@ given a set of observed data</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '35', 35)" onmouseover="showTip(event, '35', 35)">
+          <code onmouseout="hideTip(event, '29', 29)" onmouseover="showTip(event, '29', 29)">
             Mean
           </code>
-          <div class="tip" id="35">
+          <div class="tip" id="29">
             <strong>Signature:</strong> MeanFunction<br />
                       </div>
         </td>
@@ -153,10 +153,10 @@ given a set of observed data</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '36', 36)" onmouseover="showTip(event, '36', 36)">
+          <code onmouseout="hideTip(event, '30', 30)" onmouseover="showTip(event, '30', 30)">
             NoiseVariance
           </code>
-          <div class="tip" id="36">
+          <div class="tip" id="30">
             <strong>Signature:</strong> float option<br />
                       </div>
         </td>
@@ -171,10 +171,10 @@ given a set of observed data</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '37', 37)" onmouseover="showTip(event, '37', 37)">
+          <code onmouseout="hideTip(event, '31', 31)" onmouseover="showTip(event, '31', 31)">
             PosteriorGaussianProcess(...)
           </code>
-          <div class="tip" id="37">
+          <div class="tip" id="31">
             <strong>Signature:</strong> data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; (newLocations:&#39;T []) -&gt; Vector&lt;float&gt; * Matrix&lt;float&gt;<br />
                       </div>
         </td>
@@ -192,10 +192,10 @@ and a set of new time points without observed values.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '38', 38)" onmouseover="showTip(event, '38', 38)">
+          <code onmouseout="hideTip(event, '32', 32)" onmouseover="showTip(event, '32', 32)">
             Predict(data newLocations)
           </code>
-          <div class="tip" id="38">
+          <div class="tip" id="32">
             <strong>Signature:</strong> data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; (newLocations:&#39;T []) -&gt; float [] * float []<br />
                       </div>
         </td>
@@ -218,10 +218,10 @@ and a set of new time points without observed values.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '39', 39)" onmouseover="showTip(event, '39', 39)">
+          <code onmouseout="hideTip(event, '33', 33)" onmouseover="showTip(event, '33', 33)">
             PredictiveLogLikelihood(data x)
           </code>
-          <div class="tip" id="39">
+          <div class="tip" id="33">
             <strong>Signature:</strong> data:seq&lt;Observation&lt;&#39;T&gt;&gt; -&gt; x:Observation&lt;&#39;T&gt; -&gt; float<br />
                       </div>
         </td>
@@ -254,6 +254,7 @@ and a set of new time points without observed values.</p>
             <li><a href="/Ariadne/covarianceFunctions.html">Covariance functions</a></li>
             <li><a href="/Ariadne/optimization.html">Optimization</a></li>
             <li><a href="/Ariadne/howto.html">Quick how-to</a></li>
+            <li><a href="http://evelinag.com/blog/2014/09-15-introducing-ariadne/journal/WeatherData.html">Example: Modeling temperatures</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="/Ariadne/reference/index.html">API Reference</a></li>
