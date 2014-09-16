@@ -38,7 +38,7 @@ module SquaredExp =
         member this.Kernel (x1, x2) = 
             let exponent = (x1 - x2)**2.0 / (2.0 * this.Lengthscale**2.0) 
             this.SignalVariance * exp(-exponent)      
-                
+    
         /// Creates Gaussian process with squared exponential kernel function
         /// and zero mean.
         member this.GaussianProcess () =
