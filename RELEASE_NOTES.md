@@ -6,3 +6,6 @@
 
 #### 0.1.2 - 17 September 2014
 * Adding link to an example application to the documentation
+
+#### 0.1.3 - 4 November 2014
+F# logo update
