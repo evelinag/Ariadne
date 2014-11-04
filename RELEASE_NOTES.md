@@ -9,3 +9,6 @@
 
 #### 0.1.3 - 4 November 2014
 F# logo update
+
+#### 0.1.4 - 4 November 2014
+F# logo update for website
